@@ -15,8 +15,11 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return success response with message', () => {
+      const result = appController.getHello();
+      expect(result).toBeDefined();
+      expect(result.status).toBe('success');
+      expect(result.data?.message).toBe('Hello World Ojok');
     });
   });
 });
