@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
-import { plainToInstance } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { RoleEntity } from './entities/role.entity';
 import { OutletEntity } from '../outlets/entities/outlet.entity';
 import { CreateRoleDto, UpdateRoleDto, RoleResponseDto } from './dto/role.dto';
@@ -34,9 +34,12 @@ export class RolesService {
 
     const role = this.roleRepo.create({ ...dto, outlet });
     const savedRole = await this.roleRepo.save(role);
-    return plainToInstance(RoleResponseDto, savedRole, {
+    const instance = plainToInstance(RoleResponseDto, savedRole, {
       excludeExtraneousValues: true,
     });
+    return instanceToPlain(instance, {
+      exposeDefaultValues: true,
+    }) as Record<string, unknown>;
   }
 
   async list(paginationDto: PaginationDto, currentUser: CurrentUserType) {
@@ -53,7 +56,10 @@ export class RolesService {
       order: { id: 'ASC' },
     });
 
-    const rolesSerialized = plainToInstance(RoleEntity, roles);
+    const rolesSerialized = plainToInstance(RoleEntity, roles, {
+      exposeDefaultValues: true,
+    });
+    const data = Array.isArray(rolesSerialized) ? rolesSerialized : [];
     const totalPage = Math.ceil(total / limit);
 
     const meta: ResponseMeta = {
@@ -64,7 +70,7 @@ export class RolesService {
     };
 
     return {
-      data: rolesSerialized,
+      data,
       meta,
     };
   }
@@ -74,9 +80,17 @@ export class RolesService {
     const roles = await this.roleRepo.find({
       where: { outlet: { id: roleId } },
     });
-    return plainToInstance(RoleResponseDto, roles, {
+    const instances = plainToInstance(RoleResponseDto, roles, {
       excludeExtraneousValues: true,
     });
+    const arr = Array.isArray(instances) ? instances : [instances];
+    return arr.map(
+      (r) =>
+        instanceToPlain(r, { exposeDefaultValues: true }) as Record<
+          string,
+          unknown
+        >,
+    );
   }
 
   async updateRole(
@@ -93,9 +107,12 @@ export class RolesService {
 
     Object.assign(role, dto);
     const updatedRole = await this.roleRepo.save(role);
-    return plainToInstance(RoleResponseDto, updatedRole, {
+    const instance = plainToInstance(RoleResponseDto, updatedRole, {
       excludeExtraneousValues: true,
     });
+    return instanceToPlain(instance, {
+      exposeDefaultValues: true,
+    }) as Record<string, unknown>;
   }
 
   async deleteRole(roleId: string, currentUser: CurrentUserType) {

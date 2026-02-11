@@ -35,22 +35,22 @@ export class CategoriesController {
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const category = await this.categoriesService.create(
         createCategoryDto,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.CREATED)
-        .json(createSuccessResponse('Category created successfully', category));
+      res.status(HttpStatus.CREATED);
+      return createSuccessResponse('Category created successfully', category);
     } catch (err) {
       console.error('Failed create category', err);
-      return res
-        .status(HttpStatus.CONFLICT)
-        .json(createErrorResponse('Failed to create category', err.message));
+      res.status(HttpStatus.CONFLICT);
+      return createErrorResponse(
+        'Failed to create category',
+        HttpStatus.CONFLICT,
+      );
     }
   }
 
@@ -59,28 +59,26 @@ export class CategoriesController {
   async findAll(
     @Query() paginationDto: PaginationDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const result = await this.categoriesService.findAll(
         paginationDto,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.OK)
-        .json(
-          createSuccessResponse(
-            'Get all categories success',
-            result.data,
-            result.meta,
-          ),
-        );
+      res.status(HttpStatus.OK);
+      return createSuccessResponse(
+        'Get all categories success',
+        result.data,
+        result.meta,
+      );
     } catch (err) {
       console.error('Failed get all categories', err);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(createErrorResponse('Failed to get categories', err.message));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR);
+      return createErrorResponse(
+        'Failed to get categories',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -89,19 +87,16 @@ export class CategoriesController {
   async findOne(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const category = await this.categoriesService.findOne(id, currentUser);
-
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('Get category success', category));
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Get category success', category);
     } catch (err) {
       console.error('Failed get category by id', err);
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json(createErrorResponse('Category not found', err.message));
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse('Category not found', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -111,7 +106,7 @@ export class CategoriesController {
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const category = await this.categoriesService.update(
@@ -119,15 +114,15 @@ export class CategoriesController {
         updateCategoryDto,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('Category updated successfully', category));
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Category updated successfully', category);
     } catch (err) {
       console.error('Failed update category', err);
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json(createErrorResponse('Failed to update category', err.message));
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse(
+        'Failed to update category',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -136,19 +131,19 @@ export class CategoriesController {
   async remove(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const result = await this.categoriesService.remove(id, currentUser);
-
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('Category deleted successfully', result));
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Category deleted successfully', result);
     } catch (err) {
       console.error('Failed delete category', err);
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json(createErrorResponse('Failed to delete category', err.message));
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse(
+        'Failed to delete category',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 }

@@ -35,28 +35,26 @@ export class ProductsController {
   async getAllProducts(
     @Query() paginationDto: PaginationDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const result = await this.productsService.getAllProducts(
         paginationDto,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.OK)
-        .json(
-          createSuccessResponse(
-            'Get all products success',
-            result.data,
-            result.meta,
-          ),
-        );
+      res.status(HttpStatus.OK);
+      return createSuccessResponse(
+        'Get all products success',
+        result.data,
+        result.meta,
+      );
     } catch (err) {
       console.error('Failed get all products', err);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(createErrorResponse('Failed to get products', err.message));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR);
+      return createErrorResponse(
+        'Failed to get products',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -65,22 +63,19 @@ export class ProductsController {
   async getProductById(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const product = await this.productsService.getProductById(
         id,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('Get product success', product));
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Get product success', product);
     } catch (err) {
       console.error('Failed get product by id', err);
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json(createErrorResponse('Product not found', err.message));
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse('Product not found', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -89,22 +84,22 @@ export class ProductsController {
   async createProduct(
     @Body() createProductDto: BaseProductDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const product = await this.productsService.createProduct(
         createProductDto,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.CREATED)
-        .json(createSuccessResponse('Product created successfully', product));
+      res.status(HttpStatus.CREATED);
+      return createSuccessResponse('Product created successfully', product);
     } catch (err) {
       console.error('Failed create product', err);
-      return res
-        .status(HttpStatus.CONFLICT)
-        .json(createErrorResponse('Failed to create product', err.message));
+      res.status(HttpStatus.CONFLICT);
+      return createErrorResponse(
+        'Failed to create product',
+        HttpStatus.CONFLICT,
+      );
     }
   }
 
@@ -114,7 +109,7 @@ export class ProductsController {
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const product = await this.productsService.updateProduct(
@@ -122,15 +117,15 @@ export class ProductsController {
         updateProductDto,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('Product updated successfully', product));
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Product updated successfully', product);
     } catch (err) {
       console.error('Failed update product', err);
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json(createErrorResponse('Failed to update product', err.message));
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse(
+        'Failed to update product',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -139,19 +134,19 @@ export class ProductsController {
   async deleteProduct(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const result = await this.productsService.deleteProduct(id, currentUser);
-
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('Product deleted successfully', result));
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Product deleted successfully', result);
     } catch (err) {
       console.error('Failed delete product', err);
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json(createErrorResponse('Failed to delete product', err.message));
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse(
+        'Failed to delete product',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 }

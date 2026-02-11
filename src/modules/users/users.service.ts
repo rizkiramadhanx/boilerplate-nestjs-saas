@@ -9,7 +9,7 @@ import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/create-user.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CreateUserDto } from './dto/base-user.dto';
-import { plainToInstance } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ResponseMeta } from '../../common/type/response';
 import { CurrentUserType } from '../../security/user.decorator';
 import * as bcrypt from 'bcrypt';
@@ -44,7 +44,10 @@ export class UserService {
     });
 
     const savedUser = await this.userRepository.save(newUser);
-    return plainToInstance(UserEntity, savedUser);
+    const instance = plainToInstance(UserEntity, savedUser);
+    return instanceToPlain(instance, {
+      exposeDefaultValues: true,
+    }) as Record<string, unknown>;
   }
 
   async getUserById(id: string, currentUser: CurrentUserType) {
@@ -66,7 +69,10 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    return plainToInstance(UserEntity, user);
+    const instance = plainToInstance(UserEntity, user);
+    return instanceToPlain(instance, {
+      exposeDefaultValues: true,
+    }) as Record<string, unknown>;
   }
 
   async updateUser(
@@ -113,7 +119,10 @@ export class UserService {
     if (updateUserDto.picture) user.picture = updateUserDto.picture;
 
     const updatedUser = await this.userRepository.save(user);
-    return plainToInstance(UserEntity, updatedUser);
+    const instance = plainToInstance(UserEntity, updatedUser);
+    return instanceToPlain(instance, {
+      exposeDefaultValues: true,
+    }) as Record<string, unknown>;
   }
 
   async deleteUser(id: string, currentUser: CurrentUserType) {
@@ -176,6 +185,15 @@ export class UserService {
     });
 
     const usersSerialized = plainToInstance(UserEntity, users);
+    const data = (
+      Array.isArray(usersSerialized) ? usersSerialized : [usersSerialized]
+    ).map(
+      (u) =>
+        instanceToPlain(u, { exposeDefaultValues: true }) as Record<
+          string,
+          unknown
+        >,
+    );
     const totalPage = Math.ceil(total / limit);
 
     const meta: ResponseMeta = {
@@ -186,7 +204,7 @@ export class UserService {
     };
 
     return {
-      data: usersSerialized,
+      data,
       meta,
     };
   }

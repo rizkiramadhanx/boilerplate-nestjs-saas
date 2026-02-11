@@ -81,7 +81,9 @@ export class AuthService {
         secret: this.configService.get('config.jwt.secret'),
       });
 
-      const user = await this.findUserByEmail(payload.email);
+      const user = await this.userRepository.findOne({
+        where: { email: payload.email },
+      });
       if (!user) throw new UnauthorizedException('Invalid token');
 
       user.isConfirmed = true;
@@ -94,7 +96,9 @@ export class AuthService {
   }
 
   async registerManualUser(user: RegisterWithOutletDto) {
-    const userExists = await this.findUserByEmail(user.email);
+    const userExists = await this.userRepository.findOne({
+      where: { email: user.email },
+    });
     if (userExists) throw new ConflictException('Email already in use');
 
     return await this.userRepository.manager.transaction(
@@ -126,7 +130,9 @@ export class AuthService {
         await transactionalEntityManager.save(newUser);
 
         // send verification email outside transaction
-        await this.sendVerificationEmail(newUser);
+        if (process.env.NODE_ENV !== 'development') {
+          await this.sendVerificationEmail(newUser);
+        }
         return newUser;
       },
     );
@@ -137,7 +143,9 @@ export class AuthService {
     refresh_token: string;
     user: UserEntity;
   }> {
-    const userExists = await this.findUserByEmail(userLogin.email);
+    const userExists = await this.userRepository.findOne({
+      where: { email: userLogin.email },
+    });
     if (!userExists) {
       throw new NotFoundException('User not found');
     }
@@ -155,6 +163,8 @@ export class AuthService {
     const tokens = this.generateTokens(userExists);
     const userProfile = await this.getUserProfile(userExists.id);
 
+    console.log(userProfile);
+
     return {
       ...tokens,
       user: userProfile,
@@ -165,9 +175,11 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Unauthenticated');
     }
-    const userExists = await this.findUserByEmail(user.email);
+    const userExists = await this.userRepository.findOne({
+      where: { email: user.email },
+    });
 
-    if (userExists.password) {
+    if (userExists?.password) {
       throw new UnauthorizedException('please login using password');
     }
 
@@ -192,16 +204,6 @@ export class AuthService {
         'Failed to register user: ' + error.message,
       );
     }
-  }
-
-  async findUserByEmail(email: string) {
-    const user = await this.userRepository.findOne({ where: { email } });
-
-    if (!user) {
-      return null;
-    }
-
-    return user;
   }
 
   private generateTokens(user: UserEntity) {

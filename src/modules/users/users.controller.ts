@@ -35,28 +35,26 @@ export class UserController {
   async getAllProfile(
     @Query() paginationDto: PaginationDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const result = await this.usersService.getAllUser(
         paginationDto,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.OK)
-        .json(
-          createSuccessResponse(
-            'Get All user success',
-            result.data,
-            result.meta,
-          ),
-        );
+      res.status(HttpStatus.OK);
+      return createSuccessResponse(
+        'Get All user success',
+        result.data,
+        result.meta,
+      );
     } catch (err) {
       console.error('Failed get all user profile', err);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(createErrorResponse('Failed to get profile', err.message));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR);
+      return createErrorResponse(
+        'Failed to get profile',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -65,19 +63,16 @@ export class UserController {
   async getUserById(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const user = await this.usersService.getUserById(id, currentUser);
-
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('Get user success', user));
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Get user success', user);
     } catch (err) {
       console.error('Failed get user by id', err);
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json(createErrorResponse('User not found', err.message));
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse('User not found', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -86,22 +81,19 @@ export class UserController {
   async createUser(
     @Body() createUserDto: CreateUserDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const user = await this.usersService.createUser(
         createUserDto,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.CREATED)
-        .json(createSuccessResponse('User created successfully', user));
+      res.status(HttpStatus.CREATED);
+      return createSuccessResponse('User created successfully', user);
     } catch (err) {
       console.error('Failed create user', err);
-      return res
-        .status(HttpStatus.CONFLICT)
-        .json(createErrorResponse('Failed to create user', err.message));
+      res.status(HttpStatus.CONFLICT);
+      return createErrorResponse('Failed to create user', HttpStatus.CONFLICT);
     }
   }
 
@@ -111,7 +103,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const user = await this.usersService.updateUser(
@@ -119,15 +111,12 @@ export class UserController {
         updateUserDto,
         currentUser,
       );
-
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('User updated successfully', user));
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('User updated successfully', user);
     } catch (err) {
       console.error('Failed update user', err);
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json(createErrorResponse('Failed to update user', err.message));
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse('Failed to update user', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -136,19 +125,16 @@ export class UserController {
   async deleteUser(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const result = await this.usersService.deleteUser(id, currentUser);
-
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('User deleted successfully', result));
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('User deleted successfully', result);
     } catch (err) {
       console.error('Failed delete user', err);
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json(createErrorResponse('Failed to delete user', err.message));
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse('Failed to delete user', HttpStatus.NOT_FOUND);
     }
   }
 }

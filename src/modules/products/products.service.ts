@@ -11,7 +11,7 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ILike, Repository } from 'typeorm';
 import { ProductEntity } from './entities/product.entity';
 import { CategoryEntity } from '../categories/entities/category.entity';
-import { plainToInstance } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ResponseMeta } from '../../common/type/response';
 import { CurrentUserType } from '../../security/user.decorator';
 
@@ -52,7 +52,8 @@ export class ProductsService {
     });
 
     const savedProduct = await this.productRepository.save(newProduct);
-    return plainToInstance(ProductEntity, savedProduct);
+    const instance = plainToInstance(ProductEntity, savedProduct);
+    return instanceToPlain(instance) as Record<string, unknown>;
   }
 
   async getAllProducts(
@@ -74,18 +75,26 @@ export class ProductsService {
       relations: ['outlet', 'category'],
     });
 
-    const productsSerialized = plainToInstance(ProductEntity, products);
+    const productsSerialized = plainToInstance(ProductEntity, products, {
+      excludeExtraneousValues: true,
+    });
+    const data = (
+      Array.isArray(productsSerialized)
+        ? productsSerialized
+        : [productsSerialized]
+    ).map((p) => instanceToPlain(p) as Record<string, unknown>);
+
     const totalPage = Math.ceil(total / limit);
 
     const meta: ResponseMeta = {
-      page,
-      limit,
+      page: Number(page),
+      limit: Number(limit),
       total,
       total_page: totalPage,
     };
 
     return {
-      data: productsSerialized,
+      data,
       meta,
     };
   }
@@ -100,7 +109,8 @@ export class ProductsService {
       throw new NotFoundException('Product not found');
     }
 
-    return plainToInstance(ProductEntity, product);
+    const instance = plainToInstance(ProductEntity, product);
+    return instanceToPlain(instance) as Record<string, unknown>;
   }
 
   async updateProduct(
@@ -131,8 +141,8 @@ export class ProductsService {
     }
 
     const updatedProduct = await this.productRepository.save(product);
-
-    return plainToInstance(ProductEntity, updatedProduct);
+    const instance = plainToInstance(ProductEntity, updatedProduct);
+    return instanceToPlain(instance) as Record<string, unknown>;
   }
 
   async deleteProduct(id: string, currentUser: CurrentUserType) {

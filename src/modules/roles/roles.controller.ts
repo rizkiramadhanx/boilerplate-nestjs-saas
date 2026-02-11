@@ -35,24 +35,23 @@ export class RolesController {
   async all(
     @Query() paginationDto: PaginationDto,
     @CurrentUser() currentUser: CurrentUserType,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const result = await this.rolesService.list(paginationDto, currentUser);
-      return res
-        .status(HttpStatus.OK)
-        .json(
-          createSuccessResponse(
-            'Get all roles success',
-            result.data,
-            result.meta,
-          ),
-        );
+      res.status(HttpStatus.OK);
+      return createSuccessResponse(
+        'Get all roles success',
+        result.data,
+        result.meta,
+      );
     } catch (err) {
       console.error('Failed get all roles', err);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(createErrorResponse('Failed to get roles', err.message));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR);
+      return createErrorResponse(
+        'Failed to get roles',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -70,17 +69,21 @@ export class RolesController {
   async create(
     @Body() dto: CreateRoleDto,
     @CurrentUser() user: CurrentUserType,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    const created = await this.rolesService.createForOutlet(
-      user.outlet.id,
-      dto,
-      user,
-    );
-    return {
-      status: HttpStatus.CREATED,
-      message: 'Role created',
-      data: created,
-    };
+    try {
+      const created = await this.rolesService.createForOutlet(
+        user.outlet.id,
+        dto,
+        user,
+      );
+      res.status(HttpStatus.CREATED);
+      return createSuccessResponse('Role created', created);
+    } catch (err) {
+      console.error('Failed create role', err);
+      res.status(HttpStatus.CONFLICT);
+      return createErrorResponse('Failed to create role', HttpStatus.CONFLICT);
+    }
   }
 
   @Get(':roleId')
@@ -88,9 +91,17 @@ export class RolesController {
   async detail(
     @Param('roleId') roleId: string,
     @CurrentUser() user: CurrentUserType,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    const items = await this.rolesService.detailRole(roleId, user);
-    return { status: HttpStatus.OK, message: 'Role detail', data: items };
+    try {
+      const items = await this.rolesService.detailRole(roleId, user);
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Role detail', items);
+    } catch (err) {
+      console.error('Failed get role detail', err);
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse('Role not found', HttpStatus.NOT_FOUND);
+    }
   }
 
   @Patch(':roleId')
@@ -99,9 +110,17 @@ export class RolesController {
     @Param('roleId') roleId: string,
     @Body() dto: UpdateRoleDto,
     @CurrentUser() user: CurrentUserType,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    const updated = await this.rolesService.updateRole(roleId, dto, user);
-    return { status: HttpStatus.OK, message: 'Role updated', data: updated };
+    try {
+      const updated = await this.rolesService.updateRole(roleId, dto, user);
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Role updated', updated);
+    } catch (err) {
+      console.error('Failed update role', err);
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse('Failed to update role', HttpStatus.NOT_FOUND);
+    }
   }
 
   @Delete(':roleId')
@@ -109,8 +128,16 @@ export class RolesController {
   async remove(
     @Param('roleId') roleId: string,
     @CurrentUser() user: CurrentUserType,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    await this.rolesService.deleteRole(roleId, user);
-    return { status: HttpStatus.OK, message: 'Role deleted' };
+    try {
+      await this.rolesService.deleteRole(roleId, user);
+      res.status(HttpStatus.OK);
+      return createSuccessResponse('Role deleted', true);
+    } catch (err) {
+      console.error('Failed delete role', err);
+      res.status(HttpStatus.NOT_FOUND);
+      return createErrorResponse('Failed to delete role', HttpStatus.NOT_FOUND);
+    }
   }
 }

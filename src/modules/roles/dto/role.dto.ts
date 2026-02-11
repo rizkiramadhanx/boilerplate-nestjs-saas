@@ -45,25 +45,25 @@ export class UpdateRoleDto {
 }
 
 export class RoleResponseDto {
-  @Expose()
+  @Expose({ name: 'id' })
   id: string;
 
-  @Expose()
+  @Expose({ name: 'name' })
   name: string;
 
-  @Expose()
+  @Expose({ name: 'is_admin' })
   isAdmin: boolean;
 
-  @Expose()
+  @Expose({ name: 'modules' })
   modules: string[];
 
-  @Expose()
-  @Transform(({ obj }) => obj.outlet?.id)
+  @Expose({ name: 'outlet_id' })
+  @Transform(({ obj }) => obj.outlet?.id ?? obj.outletId)
   outletId: string;
 
-  @Expose()
+  @Expose({ name: 'created_at' })
   createdAt: Date;
 
-  @Expose()
+  @Expose({ name: 'updated_at' })
   updatedAt: Date;
 }

@@ -10,7 +10,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CurrentUserType } from '../../security/user.decorator';
-import { plainToInstance } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ResponseMeta } from '../../common/type/response';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class CategoriesService {
   async create(
     createCategoryDto: CreateCategoryDto,
     currentUser: CurrentUserType,
-  ): Promise<CategoryEntity> {
+  ) {
     // Check if category with same name already exists in outlet
     const existingCategory = await this.categoryRepository.findOne({
       where: {
@@ -41,7 +41,8 @@ export class CategoriesService {
     });
 
     const savedCategory = await this.categoryRepository.save(category);
-    return plainToInstance(CategoryEntity, savedCategory);
+    const instance = plainToInstance(CategoryEntity, savedCategory);
+    return instanceToPlain(instance) as Record<string, unknown>;
   }
 
   async findAll(paginationDto: PaginationDto, currentUser: CurrentUserType) {
@@ -58,7 +59,14 @@ export class CategoriesService {
       relations: ['products'],
     });
 
-    const categoriesSerialized = plainToInstance(CategoryEntity, categories);
+    const categoriesSerialized = plainToInstance(CategoryEntity, categories, {
+      excludeExtraneousValues: true,
+    });
+    const data = (
+      Array.isArray(categoriesSerialized)
+        ? categoriesSerialized
+        : [categoriesSerialized]
+    ).map((c) => instanceToPlain(c) as Record<string, unknown>);
     const totalPage = Math.ceil(total / limit);
 
     const meta: ResponseMeta = {
@@ -69,15 +77,12 @@ export class CategoriesService {
     };
 
     return {
-      data: categoriesSerialized,
+      data,
       meta,
     };
   }
 
-  async findOne(
-    id: string,
-    currentUser: CurrentUserType,
-  ): Promise<CategoryEntity> {
+  async findOne(id: string, currentUser: CurrentUserType) {
     const category = await this.categoryRepository.findOne({
       where: {
         id,
@@ -90,14 +95,17 @@ export class CategoriesService {
       throw new NotFoundException('Category not found');
     }
 
-    return plainToInstance(CategoryEntity, category);
+    const instance = plainToInstance(CategoryEntity, category, {
+      excludeExtraneousValues: true,
+    });
+    return instanceToPlain(instance);
   }
 
   async update(
     id: string,
     updateCategoryDto: UpdateCategoryDto,
     currentUser: CurrentUserType,
-  ): Promise<CategoryEntity> {
+  ) {
     const category = await this.categoryRepository.findOne({
       where: {
         id,
@@ -124,7 +132,8 @@ export class CategoriesService {
 
     Object.assign(category, updateCategoryDto);
     const updatedCategory = await this.categoryRepository.save(category);
-    return plainToInstance(CategoryEntity, updatedCategory);
+    const instance = plainToInstance(CategoryEntity, updatedCategory);
+    return instanceToPlain(instance) as Record<string, unknown>;
   }
 
   async remove(id: string, currentUser: CurrentUserType) {

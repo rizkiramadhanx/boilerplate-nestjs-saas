@@ -1,0 +1,571 @@
+{
+  "info": {
+    "name": "Kubix BE - Toko Emas",
+    "description": "Collection API Backend Kubix (Toko Emas). NestJS + PostgreSQL.\n\n**Cara pakai:**\n1. Login via `Auth > Login` — response berisi `access_token`.\n2. Set variable `access_token` (copy dari response login) atau gunakan Authorization Bearer Token di folder/request yang butuh JWT.\n3. Endpoint selain Auth (kecuali register, login, verify) membutuhkan header: `Authorization: Bearer {{access_token}}`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api",
+              "host": ["{{base_url}}/api"],
+              "path": []
+            },
+            "description": "Health check / root endpoint API"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"username\": \"johndoe\",\n  \"password\": \"Password123!\",\n  \"outlet_name\": \"Toko Emas Kubix\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}/api"],
+              "path": ["auth", "register"]
+            },
+            "description": "Registrasi user baru beserta outlet."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res?.data?.access_token) {",
+                  "  pm.collectionVariables.set('access_token', res.data.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}/api"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login. Refresh token disimpan di cookie; access_token bisa disimpan ke variable collection (script test sudah diset)."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": ["{{base_url}}/api"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Refresh access token. Memerlukan cookie refresh_token (biasanya dari response Login). Di Postman, gunakan same domain atau simpan cookie dari login."
+          }
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"token_dari_email_verifikasi\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify",
+              "host": ["{{base_url}}/api"],
+              "path": ["auth", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Resend Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/resend/verify",
+              "host": ["{{base_url}}/api"],
+              "path": ["auth", "resend", "verify"]
+            },
+            "description": "Kirim ulang email verifikasi. Butuh JWT."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}/api"],
+              "path": ["auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile",
+              "host": ["{{base_url}}/api"],
+              "path": ["auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user?page=1&limit=10&keyword=",
+              "host": ["{{base_url}}/api"],
+              "path": ["user"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"},
+                {"key": "keyword", "value": ""}
+              ]
+            },
+            "description": "Permission: user:read"
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/:id",
+              "host": ["{{base_url}}/api"],
+              "path": ["user", ":id"],
+              "variable": [{"key": "id", "value": ""}]
+            },
+            "description": "Permission: user:read"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\",\n  \"outlet_id\": \"uuid-outlet-optional\",\n  \"role_id\": \"uuid-role-optional\",\n  \"picture\": \"https://example.com/avatar.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user",
+              "host": ["{{base_url}}/api"],
+              "path": ["user"]
+            },
+            "description": "Permission: user:create"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"password\": \"NewPassword123!\",\n  \"outlet_id\": \"uuid-outlet\",\n  \"role_id\": \"uuid-role\",\n  \"picture\": \"https://example.com/avatar2.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/:id",
+              "host": ["{{base_url}}/api"],
+              "path": ["user", ":id"],
+              "variable": [{"key": "id", "value": ""}]
+            },
+            "description": "Permission: user:update. Semua field optional."
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/:id",
+              "host": ["{{base_url}}/api"],
+              "path": ["user", ":id"],
+              "variable": [{"key": "id", "value": ""}]
+            },
+            "description": "Permission: user:delete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Get All Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles?page=1&limit=10&keyword=",
+              "host": ["{{base_url}}/api"],
+              "path": ["roles"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"},
+                {"key": "keyword", "value": ""}
+              ]
+            },
+            "description": "Permission: role:read"
+          }
+        },
+        {
+          "name": "List Action (Permissions)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles/list-action",
+              "host": ["{{base_url}}/api"],
+              "path": ["roles", "list-action"]
+            },
+            "description": "Daftar action untuk assign ke role (role:create, user:read, dll)."
+          }
+        },
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Manager\",\n  \"isAdmin\": false,\n  \"modules\": [\"role:create\", \"role:read\", \"user:read\", \"product:read\", \"category:read\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/roles",
+              "host": ["{{base_url}}/api"],
+              "path": ["roles"]
+            },
+            "description": "Permission: role:create. modules = array permission (lihat list-action)."
+          }
+        },
+        {
+          "name": "Get Role By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles/:roleId",
+              "host": ["{{base_url}}/api"],
+              "path": ["roles", ":roleId"],
+              "variable": [{"key": "roleId", "value": ""}]
+            },
+            "description": "Permission: role:read"
+          }
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Manager Updated\",\n  \"isAdmin\": false,\n  \"modules\": [\"role:create\", \"role:read\", \"role:update\", \"user:read\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/roles/:roleId",
+              "host": ["{{base_url}}/api"],
+              "path": ["roles", ":roleId"],
+              "variable": [{"key": "roleId", "value": ""}]
+            },
+            "description": "Permission: role:update"
+          }
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles/:roleId",
+              "host": ["{{base_url}}/api"],
+              "path": ["roles", ":roleId"],
+              "variable": [{"key": "roleId", "value": ""}]
+            },
+            "description": "Permission: role:delete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/product?page=1&limit=10&keyword=",
+              "host": ["{{base_url}}/api"],
+              "path": ["product"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"},
+                {"key": "keyword", "value": ""}
+              ]
+            },
+            "description": "Permission: product:read"
+          }
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/product/:id",
+              "host": ["{{base_url}}/api"],
+              "path": ["product", ":id"],
+              "variable": [{"key": "id", "value": ""}]
+            },
+            "description": "Permission: product:read"
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gelang Emas 24K\",\n  \"description\": \"Gelang emas murni 24 karat\",\n  \"price\": 5000000,\n  \"stock\": 10,\n  \"hpp\": 4500000,\n  \"sku\": \"GLG-24K-001\",\n  \"picture\": \"https://example.com/product.jpg\",\n  \"isActive\": true,\n  \"category_id\": \"uuid-category\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/product",
+              "host": ["{{base_url}}/api"],
+              "path": ["product"]
+            },
+            "description": "Permission: product:create"
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gelang Emas 24K (Updated)\",\n  \"description\": \"Deskripsi diperbarui\",\n  \"price\": 5500000,\n  \"stock\": 15,\n  \"hpp\": 4800000,\n  \"isActive\": true,\n  \"category_id\": \"uuid-category\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/product/:id",
+              "host": ["{{base_url}}/api"],
+              "path": ["product", ":id"],
+              "variable": [{"key": "id", "value": ""}]
+            },
+            "description": "Permission: product:update. Semua field optional."
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/product/:id",
+              "host": ["{{base_url}}/api"],
+              "path": ["product", ":id"],
+              "variable": [{"key": "id", "value": ""}]
+            },
+            "description": "Permission: product:delete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Emas Perhiasan\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/category",
+              "host": ["{{base_url}}/api"],
+              "path": ["category"]
+            },
+            "description": "Permission: category:create"
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/category?page=1&limit=10&keyword=",
+              "host": ["{{base_url}}/api"],
+              "path": ["category"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"},
+                {"key": "keyword", "value": ""}
+              ]
+            },
+            "description": "Permission: category:read"
+          }
+        },
+        {
+          "name": "Get Category By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/category/:id",
+              "host": ["{{base_url}}/api"],
+              "path": ["category", ":id"],
+              "variable": [{"key": "id", "value": ""}]
+            },
+            "description": "Permission: category:read"
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Emas Perhiasan (Updated)\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/category/:id",
+              "host": ["{{base_url}}/api"],
+              "path": ["category", ":id"],
+              "variable": [{"key": "id", "value": ""}]
+            },
+            "description": "Permission: category:update"
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/category/:id",
+              "host": ["{{base_url}}/api"],
+              "path": ["category", ":id"],
+              "variable": [{"key": "id", "value": ""}]
+            },
+            "description": "Permission: category:delete"
+          }
+        }
+      ]
+    }
+  ]
+}
