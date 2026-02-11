@@ -34,7 +34,7 @@ Backend **NestJS** untuk aplikasi toko emas (Kubix). Menggunakan **PostgreSQL** 
 
    ```bash
    git clone <url-repo>
-   cd kubix-be
+   cd boilerplate-nestjs-saas
    ```
 
 2. Pasang dependensi:
@@ -150,24 +150,24 @@ Panduan lengkap: [guide/migration.md](guide/migration.md).
 
 Detail endpoint dan request/response ada di folder `docs/`:
 
-| Modul     | File           | Deskripsi        |
-| --------- | -------------- | ----------------- |
-| Auth      | [docs/auth.md](docs/auth.md)       | Login, register, refresh, verifikasi email |
-| Users     | [docs/users.md](docs/users.md)     | CRUD user, profile                 |
-| Products  | [docs/products.md](docs/products.md) | CRUD produk                        |
-| Categories| [docs/categories.md](docs/categories.md) | CRUD kategori                 |
-| Roles     | [docs/roles.md](docs/roles.md)      | Manajemen role & permission        |
+| Modul      | File                                     | Deskripsi                                  |
+| ---------- | ---------------------------------------- | ------------------------------------------ |
+| Auth       | [docs/auth.md](docs/auth.md)             | Login, register, refresh, verifikasi email |
+| Users      | [docs/users.md](docs/users.md)           | CRUD user, profile                         |
+| Products   | [docs/products.md](docs/products.md)     | CRUD produk                                |
+| Categories | [docs/categories.md](docs/categories.md) | CRUD kategori                              |
+| Roles      | [docs/roles.md](docs/roles.md)           | Manajemen role & permission                |
 
 ## Scripts
 
-| Perintah           | Keterangan              |
-| ------------------ | ----------------------- |
-| `npm run start:dev`  | Dev server (watch)      |
-| `npm run build`      | Build production        |
-| `npm run start:prod` | Jalankan build          |
-| `npm test`           | Unit test               |
-| `npm run lint`       | ESLint                  |
-| `npm run format`     | Prettier                |
+| Perintah             | Keterangan         |
+| -------------------- | ------------------ |
+| `npm run start:dev`  | Dev server (watch) |
+| `npm run build`      | Build production   |
+| `npm run start:prod` | Jalankan build     |
+| `npm test`           | Unit test          |
+| `npm run lint`       | ESLint             |
+| `npm run format`     | Prettier           |
 
 ## Lisensi
 
