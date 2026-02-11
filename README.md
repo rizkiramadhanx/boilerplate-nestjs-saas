@@ -135,13 +135,13 @@ Aplikasi berjalan di `http://localhost:3000` (atau nilai `PORT` di `.env`).
 - Membuat migrasi baru:
 
   ```bash
-  npm run migration:create -- src/migrations/NamaMigrasi
+  npm run migration:create -- src/migration/NamaMigrasi
   ```
 
 - Generate migrasi dari perubahan entity:
 
   ```bash
-  npm run migration:generate -- src/migrations/NamaMigrasi
+  npm run migration:generate -- src/migration/NamaMigrasi
   ```
 
 Panduan lengkap: [guide/migration.md](guide/migration.md).
