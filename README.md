@@ -1,226 +1,174 @@
+# Kubix BE — Backend Toko Emas
 
+Backend **NestJS** untuk aplikasi toko emas (Kubix). Menggunakan **PostgreSQL** dengan **TypeORM**, autentikasi JWT, sistem role & permission, serta modul produk, kategori, user, dan outlet.
 
-# NestJS Project - Auth with Google OAuth, Manual Auth, TypeORM (MySQL), Role System & AI-powered Generator
+## Daftar Isi
 
-This is a **NestJS** project that implements authentication using both **Google OAuth** and **manual login** (username and password), a role-based user system, **TypeORM** for **MySQL** database integration, and a feature to **generate AI-based content** using an external API.
+- [Fitur](#fitur)
+- [Persyaratan](#persyaratan)
+- [Instalasi](#instalasi)
+- [Konfigurasi](#konfigurasi)
+- [Menjalankan Aplikasi](#menjalankan-aplikasi)
+- [Testing](#testing)
+- [Migrasi Database](#migrasi-database)
+- [Dokumentasi API](#dokumentasi-api)
+- [Lisensi](#lisensi)
 
-## Table of Contents
+## Fitur
 
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [API Endpoints](#api-endpoints)
-- [Database Entities](#database-entities)
-- [AI Generator](#ai-generator)
-- [License](#license)
+- **Autentikasi**: Register, login, refresh token, verifikasi email
+- **Autorisasi**: Role-based access dengan permission (user, product, category, role, dll.)
+- **Modul**: Users, Products, Categories, Roles, Outlets
+- **Database**: PostgreSQL + TypeORM (migrations)
+- **Mailer**: Verifikasi email (Nodemailer + Handlebars)
 
-## Features
+## Persyaratan
 
-- **Google OAuth 2.0 Authentication**: Allows users to log in with their Google accounts.
-- **Manual Authentication**: Users can also register and log in with a username and password.
-- **Role-based Authorization**: Supports user roles such as `user`, `admin`, etc.
-- **MySQL Integration**: Uses **TypeORM** to manage entities and migrations.
-- **AI-Powered Content Generation**: Integrates AI service to generate copywriting/content based on user input.
+- **Node.js** (v18+ disarankan)
+- **PostgreSQL**
+- **npm** atau **bun**
 
-## Requirements
+## Instalasi
 
-- **Node.js** (version 14 or higher)
-- **MySQL** (for database)
-- **Google Developer Console** (for Google OAuth)
-- **OpenAI API** (for AI-based content generation)
-
-## Installation
-
-1. Clone this repository:
+1. Clone repository:
 
    ```bash
-   git clone https://github.com/soimalfath/qiblatbizzapi.git
-   cd qiblatbizzapi
+   git clone <url-repo>
+   cd kubix-be
    ```
 
-2. Install the dependencies:
+2. Pasang dependensi:
 
    ```bash
    npm install
    ```
 
-3. Create the MySQL database and configure your `.env` file.
+3. Salin file env dan isi nilai yang sesuai:
 
-## Configuration
+   ```bash
+   cp .env.example .env
+   ```
 
-1. **Google OAuth Setup:**
-   - Go to [Google Developer Console](https://console.developers.google.com/).
-   - Create a project and configure **OAuth Consent Screen**.
-   - Set up OAuth 2.0 credentials for **Web Application**.
-   - Note down the **Client ID** and **Client Secret**.
+## Konfigurasi
 
-2. **Database Configuration:**
-   - Make sure you have MySQL installed and running.
-   - Create a `.env` file in the root of the project with the following structure:
+Buat file `.env` di root proyek. Contoh struktur (lihat `.env.example`):
 
-     ```env
-     # App
-     PORT=5000
-     FRONT_END_URL=https://your-frontend-url.com
-     AUTH_CALLBACK=https://your-frontend-url.com/auth/callback
+```env
+# Database (PostgreSQL)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=yourpassword
+DB_NAME=kubix_db
 
-     # Database
-     DB_HOST=localhost
-     DB_PORT=3306
-     DB_USER=root
-     DB_PASSWORD=yourpassword
-     DB_NAME=nestjs_project
+# App
+NODE_ENV=development
+PORT=3000
+FRONT_END_URL=http://localhost:5173
 
-     # JWT
-     JWT_SECRET=your_jwt_secret
-     JWT_EXPIRATION_TIME=3600
+# JWT
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=1h
 
-     JWT_SECRET_REFRESH=your_jwt_secret
-     JWT_EXPIRES_IN_REFRESH=3d
+JWT_SECRET_REFRESH=your_jwt_refresh_secret
+JWT_EXPIRES_IN_REFRESH=7d
 
-     # Google OAuth
-     GOOGLE_CLIENT_ID=your-google-client-id
-     GOOGLE_CLIENT_SECRET=your-google-client-secret
-     GOOGLE_REDIRECT_URL=http://localhost:3000/auth/google/callback
+# Mail (verifikasi email)
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USER=
+MAIL_PASS=
+MAIL_FROM=noreply@example.com
+```
 
-     # GEMINI
-     GEMINI_APIKEY = your-apikey-gemini
-     GEMINI_MODEL_NAME = gemini-1.5-flash-latest
-     GEMINI_BASE_URL= https://generativelanguage.googleapis.com/v1beta/models/
+## Menjalankan Aplikasi
 
-     # AI API (e.g., OpenAI)
-     AI_API_KEY=your-ai-api-key
-     ```
-
-3. **Run Migrations**:
-   - Ensure the database is set up and then run:
-
-     ```bash
-     npm run typeorm migration:run
-     ```
-
-## Running the Application
-
-- To run the application in development mode:
+- Development (watch mode):
 
   ```bash
   npm run start:dev
   ```
 
-- The app will be available at `http://localhost:5000`.
+- Production:
 
-## API Endpoints
-
-### Auth Endpoints
-
-- **Google OAuth Login**:
-  - `GET /auth/google`
-  - Redirects the user to Google OAuth login.
-  
-- **Google OAuth Callback**:
-  - `GET /auth/google/callback`
-  - Handles the Google login callback.
-
-- **Manual Login**:
-  - `POST /auth/login`
-  - Payload: `{ "email": "user@example.com", "password": "yourpassword" }`
-  - Returns a JWT token.
-
-- **Manual Registration**:
-  - `POST /auth/register`
-  - Payload: `{ "email": "user@example.com", "password": "yourpassword", "confirmPassword": "yourpassword" }`
-  
-- **User Profile** (Protected):
-  - `GET /users/profile`
-  - Requires JWT token.
-
-### Role-Based Access
-
-- **Admin Route** (only for users with the `admin` role):
-  - `GET /admin`
-  - Protected route that requires the user to have the `admin` role.
-
-- **Role Management**:
-  - `POST /admin/roles`
-  - Allows assigning roles to users (e.g., `admin`, `user`).
-
-### AI Generator
-
-- **Generate Content** (Protected):
-  - `POST /generate`
-  - Payload: `{ "product": "Your Product", "type": "google-ads" }`
-  - Requires JWT token.
-  - Returns AI-generated content (copywriting) for various platforms (e.g., Meta Ads, Google Ads).
-
-## Database Entities 
-
-- **User Entity**:
-  - Includes fields like `id`, `email`, `password`, `roles`, and `authProvider` (to distinguish between manual login and Google OAuth).
-
-  ```typescript
-  @Entity()
-  export class User {
-     @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column({ unique: true })
-  email: string;
-
-  @Column()
-  name: string;
-
-  @Column({ nullable: true })
-  picture: string;
-
-  @Column({ nullable: true })
-  provider: string;
-
-  @Column({ nullable: true })
-  providerID: string;
-
-  @Column({ nullable: true })
-  password: string;
-
-  @Column({ type: 'enum', enum: Role, default: Role.USER }) // Default role USER
-  role: Role;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @OneToMany(() => ProductEntity, (product) => product.user)
-  products: ProductEntity;
-  }
+  ```bash
+  npm run build
+  npm run start:prod
   ```
 
-- **Roles**:
-  - Enum: `admin`,  `user`, `sub-user`
+Aplikasi berjalan di `http://localhost:3000` (atau nilai `PORT` di `.env`).
 
+## Testing
 
-## AI Generator
+- Menjalankan semua unit test:
 
-This feature uses an external AI API (e.g., OpenAI) to generate content such as copywriting. The service takes input (like product name and type of ad) and returns content optimized for platforms like Google Ads, Meta Ads, or landing pages.
+  ```bash
+  npm test
+  ```
 
-Example usage:
+- Watch mode:
 
-```typescript
-const response = await this.aiService.generateCopywriting({
-  product: 'Awesome Product',
-  type: 'google-ads',
-});
-```
+  ```bash
+  npm run test:watch
+  ```
 
-## License
+- Coverage:
 
-This project is licensed under the MIT License.
+  ```bash
+  npm run test:cov
+  ```
 
----
+- E2E:
 
-### Notes:
-- **Google OAuth**: Ensure you have correct Google credentials and have set up OAuth properly.
-- **Manual Authentication**: Be sure to handle hashing passwords before saving them in the database.
-- **AI Integration**: You can use any AI service provider, like OpenAI, and configure it via the `.env` file.
+  ```bash
+  npm run test:e2e
+  ```
+
+## Migrasi Database
+
+- Menjalankan migrasi:
+
+  ```bash
+  npm run migration:run
+  ```
+
+- Membuat migrasi baru:
+
+  ```bash
+  npm run migration:create -- src/migrations/NamaMigrasi
+  ```
+
+- Generate migrasi dari perubahan entity:
+
+  ```bash
+  npm run migration:generate -- src/migrations/NamaMigrasi
+  ```
+
+Panduan lengkap: [guide/migration.md](guide/migration.md).
+
+## Dokumentasi API
+
+Detail endpoint dan request/response ada di folder `docs/`:
+
+| Modul     | File           | Deskripsi        |
+| --------- | -------------- | ----------------- |
+| Auth      | [docs/auth.md](docs/auth.md)       | Login, register, refresh, verifikasi email |
+| Users     | [docs/users.md](docs/users.md)     | CRUD user, profile                 |
+| Products  | [docs/products.md](docs/products.md) | CRUD produk                        |
+| Categories| [docs/categories.md](docs/categories.md) | CRUD kategori                 |
+| Roles     | [docs/roles.md](docs/roles.md)      | Manajemen role & permission        |
+
+## Scripts
+
+| Perintah           | Keterangan              |
+| ------------------ | ----------------------- |
+| `npm run start:dev`  | Dev server (watch)      |
+| `npm run build`      | Build production        |
+| `npm run start:prod` | Jalankan build          |
+| `npm test`           | Unit test               |
+| `npm run lint`       | ESLint                  |
+| `npm run format`     | Prettier                |
+
+## Lisensi
+
+UNLICENSED (private).
