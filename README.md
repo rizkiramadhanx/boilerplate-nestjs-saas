@@ -1,4 +1,4 @@
-# Kubix BE — Backend Toko Emas
+# Kubik Boilerplate — Backend Nestjs
 
 Backend **NestJS** untuk aplikasi toko emas (Kubix). Menggunakan **PostgreSQL** dengan **TypeORM**, autentikasi JWT, sistem role & permission, serta modul produk, kategori, user, dan outlet.
 

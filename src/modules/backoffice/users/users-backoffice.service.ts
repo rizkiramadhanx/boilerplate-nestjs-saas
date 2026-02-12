@@ -8,6 +8,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../../users/entities/user.entity';
+import { OutletEntity } from '../../outlets/entities/outlet.entity';
+import { ProductEntity } from '../../products/entities/product.entity';
+import { CategoryEntity } from '../../categories/entities/category.entity';
+import { RoleEntity } from '../../roles/entities/role.entity';
 import { ResponseMeta } from '../../../common/type/response';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { CreateUserBackofficeDto } from './dto/create-user-backoffice.dto';
@@ -18,6 +22,14 @@ export class UsersBackofficeService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(OutletEntity)
+    private outletRepository: Repository<OutletEntity>,
+    @InjectRepository(ProductEntity)
+    private productRepository: Repository<ProductEntity>,
+    @InjectRepository(CategoryEntity)
+    private categoryRepository: Repository<CategoryEntity>,
+    @InjectRepository(RoleEntity)
+    private roleRepository: Repository<RoleEntity>,
   ) {}
 
   async findAll(paginationDto: PaginationDto) {
@@ -105,9 +117,55 @@ export class UsersBackofficeService {
   }
 
   async remove(id: string) {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['outlet'],
+    });
     if (!user) throw new NotFoundException('User not found');
+
+    const outletId = user.outlet?.id;
+    if (!outletId) {
+      throw new NotFoundException('Outlet not found');
+    }
     await this.userRepository.remove(user);
-    return { message: 'User deleted successfully' };
+
+    if (!outletId) {
+      return { message: 'User deleted successfully' };
+    }
+
+    const userCount = await this.userRepository.count({
+      where: { outlet: { id: outletId } },
+    });
+
+    if (userCount > 0) {
+      return { message: 'User deleted successfully' };
+    }
+
+    await this.userRepository.manager.transaction(async (tx) => {
+      await tx
+        .createQueryBuilder()
+        .delete()
+        .from(ProductEntity)
+        .where('outlet_id = :outletId', { outletId })
+        .execute();
+      await tx
+        .createQueryBuilder()
+        .delete()
+        .from(CategoryEntity)
+        .where('outlet_id = :outletId', { outletId })
+        .execute();
+      await tx
+        .createQueryBuilder()
+        .delete()
+        .from(RoleEntity)
+        .where('outlet_id = :outletId', { outletId })
+        .execute();
+      await tx.delete(OutletEntity, { id: outletId });
+    });
+
+    return {
+      message:
+        'User deleted successfully. Outlet had no remaining users; outlet and all related data (products, categories, roles) have been deleted.',
+    };
   }
 }

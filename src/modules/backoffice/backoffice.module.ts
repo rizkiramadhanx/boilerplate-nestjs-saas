@@ -5,6 +5,10 @@ import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { UserEntity } from '../users/entities/user.entity';
+import { OutletEntity } from '../outlets/entities/outlet.entity';
+import { ProductEntity } from '../products/entities/product.entity';
+import { CategoryEntity } from '../categories/entities/category.entity';
+import { RoleEntity } from '../roles/entities/role.entity';
 import { AdminEntity } from './admins/entities/admin.entity';
 import { AdminJwtStrategy } from '../auth/strategies/admin-jwt.strategy';
 import { UsersBackofficeController } from './users/users-backoffice.controller';
@@ -17,7 +21,14 @@ import { AdminsBackofficeService } from './admins/admins-backoffice.service';
     AuthModule,
     ConfigModule,
     PassportModule,
-    TypeOrmModule.forFeature([UserEntity, AdminEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      AdminEntity,
+      OutletEntity,
+      ProductEntity,
+      CategoryEntity,
+      RoleEntity,
+    ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
