@@ -5,6 +5,7 @@ import { ProductEntity } from '../modules/products/entities/product.entity';
 import { OutletEntity } from '../modules/outlets/entities/outlet.entity';
 import { RoleEntity } from '../modules/roles/entities/role.entity';
 import { CategoryEntity } from '../modules/categories/entities/category.entity';
+import { AdminEntity } from '../modules/backoffice/admins/entities/admin.entity';
 
 config();
 
@@ -21,6 +22,7 @@ export default new DataSource({
     OutletEntity,
     RoleEntity,
     CategoryEntity,
+    AdminEntity,
   ],
   migrations: ['src/migration/*.ts'],
   synchronize: false,

@@ -566,6 +566,200 @@
           }
         }
       ]
+    },
+    {
+      "name": "Backoffice",
+      "description": "Backoffice: user & admin management. Users butuh JWT (user:read, user:create, dll). Admins: register/login tidak butuh JWT.",
+      "item": [
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "Get All Users",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+                "url": {
+                  "raw": "{{base_url}}/api/backoffice/users?page=1&limit=10&keyword=",
+                  "host": ["{{base_url}}/api"],
+                  "path": ["backoffice", "users"],
+                  "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "keyword", "value": ""}]
+                },
+                "description": "List semua user (tanpa filter outlet). Permission: user:read"
+              }
+            },
+            {
+              "name": "Get User By ID",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+                "url": {
+                  "raw": "{{base_url}}/api/backoffice/users/:id",
+                  "host": ["{{base_url}}/api"],
+                  "path": ["backoffice", "users", ":id"],
+                  "variable": [{"key": "id", "value": ""}]
+                },
+                "description": "Permission: user:read"
+              }
+            },
+            {
+              "name": "Create User",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123!\",\n  \"confirm_password\": \"Password123!\",\n  \"outlet_id\": \"uuid-outlet-wajib\",\n  \"role_id\": \"uuid-role-optional\",\n  \"picture\": \"https://example.com/avatar.jpg\"\n}"
+                },
+                "url": {"raw": "{{base_url}}/api/backoffice/users", "host": ["{{base_url}}/api"], "path": ["backoffice", "users"]},
+                "description": "outlet_id wajib. Permission: user:create"
+              }
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"password\": \"NewPassword123!\",\n  \"outlet_id\": \"uuid-outlet\",\n  \"role_id\": \"uuid-role\",\n  \"picture\": \"https://example.com/avatar2.jpg\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/backoffice/users/:id",
+                  "host": ["{{base_url}}/api"],
+                  "path": ["backoffice", "users", ":id"],
+                  "variable": [{"key": "id", "value": ""}]
+                },
+                "description": "Permission: user:update. Semua field optional."
+              }
+            },
+            {
+              "name": "Delete User",
+              "request": {
+                "method": "DELETE",
+                "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+                "url": {
+                  "raw": "{{base_url}}/api/backoffice/users/:id",
+                  "host": ["{{base_url}}/api"],
+                  "path": ["backoffice", "users", ":id"],
+                  "variable": [{"key": "id", "value": ""}]
+                },
+                "description": "Permission: user:delete"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admins",
+          "item": [
+            {
+              "name": "Get All Admins",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/backoffice/admins?page=1&limit=10&keyword=",
+                  "host": ["{{base_url}}/api"],
+                  "path": ["backoffice", "admins"],
+                  "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "keyword", "value": ""}]
+                },
+                "description": "List semua admin. Tidak butuh JWT."
+              }
+            },
+            {
+              "name": "Get Admin By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/backoffice/admins/:id",
+                  "host": ["{{base_url}}/api"],
+                  "path": ["backoffice", "admins", ":id"],
+                  "variable": [{"key": "id", "value": ""}]
+                },
+                "description": "Tidak butuh JWT."
+              }
+            },
+            {
+              "name": "Register Admin",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Super Admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123!\",\n  \"confirm_password\": \"Password123!\",\n  \"register_secret\": \"kinkkink\"\n}"
+                },
+                "url": {"raw": "{{base_url}}/api/backoffice/admins/register", "host": ["{{base_url}}/api"], "path": ["backoffice", "admins", "register"]},
+                "description": "register_secret harus sama dengan env ADMIN_SECRET_REGISTER. Return access_token + refresh_token + admin."
+              }
+            },
+            {
+              "name": "Login Admin",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123!\"\n}"
+                },
+                "url": {"raw": "{{base_url}}/api/backoffice/admins/login", "host": ["{{base_url}}/api"], "path": ["backoffice", "admins", "login"]},
+                "description": "Return access_token + refresh_token + admin. Tidak butuh JWT."
+              }
+            },
+            {
+              "name": "Create Admin",
+              "request": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Admin Baru\",\n  \"email\": \"admin2@example.com\",\n  \"password\": \"Password123!\",\n  \"confirm_password\": \"Password123!\"\n}"
+                },
+                "url": {"raw": "{{base_url}}/api/backoffice/admins", "host": ["{{base_url}}/api"], "path": ["backoffice", "admins"]},
+                "description": "Tidak butuh JWT."
+              }
+            },
+            {
+              "name": "Update Admin",
+              "request": {
+                "method": "PUT",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Admin Updated\",\n  \"email\": \"admin.updated@example.com\",\n  \"password\": \"NewPassword123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/backoffice/admins/:id",
+                  "host": ["{{base_url}}/api"],
+                  "path": ["backoffice", "admins", ":id"],
+                  "variable": [{"key": "id", "value": ""}]
+                },
+                "description": "Semua field optional."
+              }
+            },
+            {
+              "name": "Delete Admin",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/backoffice/admins/:id",
+                  "host": ["{{base_url}}/api"],
+                  "path": ["backoffice", "admins", ":id"],
+                  "variable": [{"key": "id", "value": ""}]
+                },
+                "description": "Tidak butuh JWT."
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

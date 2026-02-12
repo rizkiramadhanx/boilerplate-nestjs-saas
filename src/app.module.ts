@@ -9,9 +9,11 @@ import { RolesModule } from './modules/roles/roles.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { MailModule } from './modules/mailer/mailer.module';
+import { BackofficeModule } from './modules/backoffice/backoffice.module';
 
 @Module({
   imports: [
+    BackofficeModule,
     AuthModule,
     UsersModule,
     ProductsModule,

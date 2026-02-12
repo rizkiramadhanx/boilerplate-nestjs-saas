@@ -28,8 +28,6 @@ export class PermissionsGuard implements CanActivate {
     const modules: string[] = user?.role?.modules || [];
     const has = required.every((p) => modules.includes(p));
 
-    console.log('modules', required);
-    console.log('has', has);
     if (!has)
       throw new ForbiddenException(
         'You are not authorized to access this resource',
