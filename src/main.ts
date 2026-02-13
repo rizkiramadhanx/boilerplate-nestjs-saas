@@ -9,6 +9,9 @@ config();
 async function bootstrap() {
   console.log('NODE_ENV:', process.env.NODE_ENV);
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, Postman, etc.)
@@ -52,12 +55,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.use(cookieParser());
 
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-
   await app.listen(process.env.PORT, () => {
-    console.log(
-      `⚡️crud-apps: Server is running at http://localhost:${process.env.PORT}`,
-    );
+    console.log(`Server is running at http://localhot:${process.env.PORT}`);
   });
 }
 bootstrap();

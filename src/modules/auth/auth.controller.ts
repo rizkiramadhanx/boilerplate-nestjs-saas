@@ -29,24 +29,16 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(RefreshTokenGuard)
-  async refreshTokens(@Req() req: Request, @Res() res: Response) {
+  async refreshTokens(@Body('refresh_token') refreshToken: string) {
     try {
-      const { access_token } = await this.authService.refreshTokens(
-        req.cookies['refresh_token'],
-      );
-
-      return res.json({ access_token });
+      const { access_token } =
+        await this.authService.refreshTokens(refreshToken);
+      return createSuccessResponse('Token refreshed', { access_token });
     } catch (error) {
       if (error instanceof HttpException) {
-        const status = error.getStatus();
-        return res
-          .status(status)
-          .json(createErrorResponse(error.message, status));
+        throw error;
       }
-      console.error('Token refresh error:', error);
-      return res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json(createErrorResponse(error.response.message, 401));
+      throw new HttpException('Invalid refresh token', HttpStatus.UNAUTHORIZED);
     }
   }
   @Post('register')
@@ -90,35 +82,26 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() userLogin: LoginDto, @Res() res: Response) {
+  async login(@Body() userLogin: LoginDto) {
     try {
       const { access_token, refresh_token, user } =
         await this.authService.login(userLogin);
-      this.setRefreshTokenCookie(res, refresh_token);
-      const data = { access_token, user };
-      return res
-        .status(HttpStatus.OK)
-        .json(createSuccessResponse('Login Success', data));
+      const data = { access_token, refresh_token, user };
+      return createSuccessResponse('Login Success', data);
     } catch (error) {
       if (error instanceof HttpException) {
-        const status = error.getStatus();
-        return res
-          .status(status)
-          .json(createErrorResponse(error.message, status));
+        throw error;
       }
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(
-          createErrorResponse(error.message || 'Internal Server Error', 500),
-        );
+      const message =
+        error instanceof Error ? error.message : 'Internal Server Error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  async logout(@Res() res: Response) {
-    this.clearRefreshTokenCookie(res);
-    return res.json(createSuccessResponse('Logged out successfully'));
+  async logout() {
+    return createSuccessResponse('Logged out successfully');
   }
 
   @UseGuards(JwtAuthGuard)
@@ -139,26 +122,5 @@ export class AuthController {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json(createErrorResponse('Failed to get profile', err.message));
     }
-  }
-
-  private setRefreshTokenCookie(res: Response, refresh_token: string) {
-    const secure = process.env.NODE_ENV === 'production';
-
-    res.cookie('refresh_token', refresh_token, {
-      httpOnly: true,
-      secure: secure,
-      sameSite: 'lax',
-      maxAge: 3 * 24 * 60 * 60 * 1000,
-      path: '/',
-    });
-  }
-
-  private clearRefreshTokenCookie(res: Response) {
-    res.clearCookie('refresh_token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-    });
   }
 }

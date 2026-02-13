@@ -26,9 +26,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
-          return request?.cookies?.refresh_token;
-        },
+        (request: Request) => request?.body?.refresh_token,
       ]),
       secretOrKey: configService.get('config.refresh.secret'),
       passReqToCallback: true,
@@ -36,7 +34,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
   }
 
   async validate(req: Request, payload: JwtPayload) {
-    const refreshToken = req.cookies?.refresh_token;
+    const refreshToken = req.body?.refresh_token;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token malformed');

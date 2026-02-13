@@ -5,8 +5,7 @@ import { Request } from 'express';
 export class RefreshTokenGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<Request>();
-    const refreshToken = req.cookies['refresh_token']; // Ambil refresh token dari cookie
-    // Jika refresh token ada di cookie, izinkan akses
+    const refreshToken = req.body?.refresh_token;
     return !!refreshToken;
   }
 }
