@@ -31,12 +31,14 @@ export const createSuccessResponse = <T = any>(
   message,
   code: 200,
   status: 'success',
-  meta: {
-    page: Number(meta.page),
-    limit: Number(meta.limit),
-    total: Number(meta.total),
-    total_page: Number(meta.total_page),
-  },
+  ...(meta != null && {
+    meta: {
+      page: Number(meta.page ?? 0),
+      limit: Number(meta.limit ?? 0),
+      total: Number(meta.total ?? 0),
+      total_page: Number(meta.total_page ?? 0),
+    },
+  }),
   data,
 });
 
