@@ -15,10 +15,12 @@ import { DatabaseModule } from './../../database/database.module';
 import databaseConfig from './../../config/database.config';
 import { MailService } from '../mailer/mailer.service';
 import { MailModule } from '../mailer/mailer.module';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
   imports: [
     DatabaseModule,
+    LogsModule,
     PassportModule,
     MailModule,
     TypeOrmModule.forFeature([UserEntity, OutletEntity, RoleEntity]),

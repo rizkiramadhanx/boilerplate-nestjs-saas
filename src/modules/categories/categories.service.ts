@@ -49,11 +49,12 @@ export class CategoriesService {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
+    const keyword = paginationDto.keyword ?? '';
     const [categories, total] = await this.categoryRepository.findAndCount({
       skip,
       take: limit,
       where: {
-        name: ILike(`%${paginationDto.keyword}%`),
+        name: ILike(`%${keyword}%`),
         outlet: { id: currentUser.outlet.id },
       },
       relations: ['products'],

@@ -10,10 +10,12 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { MailModule } from './modules/mailer/mailer.module';
 import { BackofficeModule } from './modules/backoffice/backoffice.module';
+import { LogsModule } from './modules/logs/logs.module';
 
 @Module({
   imports: [
     BackofficeModule,
+    LogsModule,
     AuthModule,
     UsersModule,
     ProductsModule,

@@ -1,84 +1,29 @@
-# 🛍️ Products API Documentation
+# 📦 Product API Documentation
 
-**Base URL:** `api/product`
+**Base URL:** `/product`
 
-Semua endpoint di bawah ini **memerlukan autentikasi JWT** dan akses module `product`.
-
----
-
-## 📌 Create Product
-
-**POST** `api/product`
-
-### Request Body
-
-| Field         | Type    | Required | Description                         |
-| ------------- | ------- | -------- | ----------------------------------- |
-| `name`        | string  | ✅       | Nama produk                         |
-| `description` | string  | ✅       | Deskripsi produk                    |
-| `price`       | number  | ✅       | Harga jual produk                   |
-| `stock`       | number  | ✅       | Stok produk                         |
-| `picture`     | string  | ❌       | URL gambar produk (optional)        |
-| `hpp`         | number  | ❌       | Harga pokok penjualan (optional)    |
-| `sku`         | string  | ❌       | SKU produk (optional)               |
-| `isActive`    | boolean | ❌       | Status aktif produk (default: true) |
-| `category_id` | UUID    | ❌       | ID kategori produk (optional)       |
-
-```json
-{
-  "name": "PlayStation 5",
-  "description": "Gaming console terbaru dari Sony",
-  "price": 8000000,
-  "stock": 10,
-  "picture": "https://example.com/ps5.jpg",
-  "hpp": 6000000,
-  "sku": "PS5-001",
-  "isActive": true,
-  "category_id": "550e8400-e29b-41d4-a716-446655440003"
-}
-```
-
-### Response
-
-```json
-{
-  "status": 201,
-  "message": "Product created successfully",
-  "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440001",
-    "name": "PlayStation 5",
-    "description": "Gaming console terbaru dari Sony",
-    "price": 8000000,
-    "stock": 10,
-    "hpp": 6000000,
-    "sku": "PS5-001",
-    "isActive": true,
-    "category_id": "550e8400-e29b-41d4-a716-446655440003",
-    "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-    "createdAt": "2025-09-19T08:26:46.000Z",
-    "updatedAt": "2025-09-19T08:26:46.000Z"
-  }
-}
-```
+Semua endpoint memerlukan **autentikasi JWT** dan permission sesuai tabel di bawah.
 
 ---
 
-## 📌 Get All Products (Pagination + Search)
+## 📌 Get All Products
 
-**GET** `api/product`
+**GET** `/product`
+
+Mengambil daftar produk untuk outlet user yang login, dengan paginasi dan filter nama.
 
 ### Query Parameters
 
-| Parameter | Type   | Description                  |
-| --------- | ------ | ---------------------------- |
-| `page`    | int    | Page number (default: 1)     |
-| `limit`   | int    | Items per page (default: 10) |
-| `keyword` | string | Search by name (optional)    |
+| Parameter | Tipe   | Default | Keterangan                         |
+| --------- | ------ | ------- | ---------------------------------- |
+| `page`    | number | 1       | Halaman                            |
+| `limit`   | number | 10      | Jumlah per halaman                  |
+| `keyword` | string | -       | Filter nama produk (case-insensitive) |
 
 ### Example
 
 ```
-GET api/product?page=1&limit=5&keyword=PlayStation
+GET /product?page=1&limit=10&keyword=Cincin
 ```
 
 ### Response
@@ -90,37 +35,24 @@ GET api/product?page=1&limit=5&keyword=PlayStation
   "data": [
     {
       "id": "550e8400-e29b-41d4-a716-446655440001",
-      "name": "PlayStation 5",
-      "description": "Gaming console terbaru dari Sony",
-      "price": 8000000,
+      "name": "Cincin Emas 24K",
+      "description": "Cincin emas murni 24 karat",
+      "price": 2500000,
+      "picture": "https://example.com/cincin.jpg",
+      "hpp": 2200000,
       "stock": 10,
-
-      "hpp": 6000000,
-      "sku": "PS5-001",
-      "isActive": true,
+      "sku": "CIN-24K-001",
+      "is_active": true,
+      "created_at": "2025-09-19T08:26:46.000Z",
+      "updated_at": "2025-09-19T08:26:46.000Z",
       "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-      "createdAt": "2025-09-19T08:26:46.000Z",
-      "updatedAt": "2025-09-19T08:26:46.000Z"
-    },
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440002",
-      "name": "Xbox Series X",
-      "description": "Gaming console dari Microsoft",
-      "price": 7500000,
-      "stock": 5,
-      "picture": "https://example.com/xbox.jpg",
-      "hpp": 5500000,
-      "sku": "XBOX-001",
-      "isActive": true,
-      "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-      "createdAt": "2025-09-19T08:27:46.000Z",
-      "updatedAt": "2025-09-19T08:27:46.000Z"
+      "category_id": "550e8400-e29b-41d4-a716-446655440010"
     }
   ],
   "meta": {
     "page": 1,
-    "limit": 5,
-    "total": 2,
+    "limit": 10,
+    "total": 1,
     "total_page": 1
   }
 }
@@ -128,14 +60,16 @@ GET api/product?page=1&limit=5&keyword=PlayStation
 
 ---
 
-## 📌 Get Product by ID
+## 📌 Get Product By ID
 
-**GET** `api/product/:id`
+**GET** `/product/:id`
+
+Mengambil detail satu produk berdasarkan ID. Hanya produk dalam outlet user yang login yang bisa diakses.
 
 ### Example
 
 ```
-GET api/product/550e8400-e29b-41d4-a716-446655440001
+GET /product/550e8400-e29b-41d4-a716-446655440001
 ```
 
 ### Response
@@ -146,27 +80,79 @@ GET api/product/550e8400-e29b-41d4-a716-446655440001
   "message": "Get product success",
   "data": {
     "id": "550e8400-e29b-41d4-a716-446655440001",
-    "name": "PlayStation 5",
-    "description": "Gaming console terbaru dari Sony",
-    "price": 8000000,
+    "name": "Cincin Emas 24K",
+    "description": "Cincin emas murni 24 karat",
+    "price": 2500000,
+    "picture": "https://example.com/cincin.jpg",
+    "hpp": 2200000,
     "stock": 10,
-    "hpp": 6000000,
-    "sku": "PS5-001",
-    "isActive": true,
-    "category_id": "550e8400-e29b-41d4-a716-446655440003",
+    "sku": "CIN-24K-001",
+    "is_active": true,
+    "created_at": "2025-09-19T08:26:46.000Z",
+    "updated_at": "2025-09-19T08:26:46.000Z",
     "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-    "createdAt": "2025-09-19T08:26:46.000Z",
-    "updatedAt": "2025-09-19T08:26:46.000Z"
+    "category_id": "550e8400-e29b-41d4-a716-446655440010"
   }
 }
 ```
 
-### Error (Not Found)
+---
+
+## 📌 Create Product
+
+**POST** `/product`
+
+Membuat produk baru di **outlet user yang login**. Outlet diambil dari JWT.
+
+### Request Body
 
 ```json
 {
-  "status": 404,
-  "message": "Product not found"
+  "name": "Gelang Emas 18K",
+  "description": "Gelang emas 18 karat dengan ukiran",
+  "price": 3500000,
+  "picture": "https://example.com/gelang.jpg",
+  "hpp": 3000000,
+  "stock": 5,
+  "sku": "GEL-18K-001",
+  "isActive": true,
+  "category_id": "550e8400-e29b-41d4-a716-446655440010"
+}
+```
+
+| Field        | Tipe    | Wajib | Keterangan                          |
+| ------------ | ------- | ----- | ------------------------------------ |
+| name         | string  | ✅    | Nama produk, max 500 karakter        |
+| description  | string  | ✅    | Deskripsi produk                     |
+| price        | number  | ✅    | Harga jual                           |
+| picture      | string  | -     | URL gambar produk                    |
+| hpp          | number  | -     | Harga pokok penjualan                |
+| stock        | number  | ✅    | Jumlah stok                          |
+| sku          | string  | -     | SKU (harus unik, konflik → 409)      |
+| isActive     | boolean | -     | Status aktif, default `true`         |
+| category_id  | UUID    | -     | ID kategori (opsional)               |
+
+### Response
+
+```json
+{
+  "status": 201,
+  "message": "Product created successfully",
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "name": "Gelang Emas 18K",
+    "description": "Gelang emas 18 karat dengan ukiran",
+    "price": 3500000,
+    "picture": "https://example.com/gelang.jpg",
+    "hpp": 3000000,
+    "stock": 5,
+    "sku": "GEL-18K-001",
+    "is_active": true,
+    "created_at": "2025-09-19T09:00:00.000Z",
+    "updated_at": "2025-09-19T09:00:00.000Z",
+    "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
+    "category_id": "550e8400-e29b-41d4-a716-446655440010"
+  }
 }
 ```
 
@@ -174,35 +160,34 @@ GET api/product/550e8400-e29b-41d4-a716-446655440001
 
 ## 📌 Update Product
 
-**PUT** `api/product/:id`
+**PATCH** `/product/:id`
+
+Mengubah data produk. Semua field opsional; hanya field yang dikirim yang di-update. Hanya produk dalam outlet user yang login yang boleh diubah.
 
 ### Request Body
 
-| Field         | Type    | Required | Description           |
-| ------------- | ------- | -------- | --------------------- |
-| `name`        | string  | ❌       | Nama produk           |
-| `description` | string  | ❌       | Deskripsi produk      |
-| `price`       | number  | ❌       | Harga jual produk     |
-| `stock`       | number  | ❌       | Stok produk           |
-| `picture`     | string  | ❌       | URL gambar produk     |
-| `hpp`         | number  | ❌       | Harga pokok penjualan |
-| `sku`         | string  | ❌       | SKU produk            |
-| `isActive`    | boolean | ❌       | Status aktif produk   |
-| `category_id` | UUID    | ❌       | ID kategori produk    |
-
 ```json
 {
-  "name": "PlayStation 5 Digital Edition",
-  "description": "PlayStation 5 tanpa disc drive",
-  "price": 7500000,
-  "stock": 15,
-  "picture": "https://example.com/ps5-digital.jpg",
-  "hpp": 5500000,
-  "sku": "PS5-DIGITAL-001",
+  "name": "Gelang Emas 18K Premium",
+  "description": "Gelang emas 18 karat dengan ukiran premium",
+  "price": 3800000,
+  "stock": 8,
   "isActive": true,
-  "category_id": "550e8400-e29b-41d4-a716-446655440003"
+  "category_id": "550e8400-e29b-41d4-a716-446655440011"
 }
 ```
+
+| Field        | Tipe    | Wajib | Keterangan     |
+| ------------ | ------- | ----- | --------------- |
+| name         | string  | -     | Nama produk     |
+| description  | string  | -     | Deskripsi       |
+| price        | number  | -     | Harga jual      |
+| picture      | string  | -     | URL gambar      |
+| hpp          | number  | -     | Harga pokok     |
+| stock        | number  | -     | Stok            |
+| sku          | string  | -     | SKU (unik)      |
+| isActive     | boolean | -     | Status aktif    |
+| category_id  | UUID    | -     | ID kategori     |
 
 ### Response
 
@@ -211,18 +196,19 @@ GET api/product/550e8400-e29b-41d4-a716-446655440001
   "status": 200,
   "message": "Product updated successfully",
   "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440001",
-    "name": "PlayStation 5 Digital Edition",
-    "description": "PlayStation 5 tanpa disc drive",
-    "price": 7500000,
-    "stock": 15,
-    "picture": "https://example.com/ps5-digital.jpg",
-    "hpp": 5500000,
-    "sku": "PS5-DIGITAL-001",
-    "isActive": true,
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "name": "Gelang Emas 18K Premium",
+    "description": "Gelang emas 18 karat dengan ukiran premium",
+    "price": 3800000,
+    "picture": "https://example.com/gelang.jpg",
+    "hpp": 3000000,
+    "stock": 8,
+    "sku": "GEL-18K-001",
+    "is_active": true,
+    "created_at": "2025-09-19T09:00:00.000Z",
+    "updated_at": "2025-09-19T09:15:00.000Z",
     "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-    "createdAt": "2025-09-19T08:26:46.000Z",
-    "updatedAt": "2025-09-19T08:30:46.000Z"
+    "category_id": "550e8400-e29b-41d4-a716-446655440011"
   }
 }
 ```
@@ -231,12 +217,14 @@ GET api/product/550e8400-e29b-41d4-a716-446655440001
 
 ## 📌 Delete Product
 
-**DELETE** `api/product/:id`
+**DELETE** `/product/:id`
+
+Menghapus produk. Hanya produk dalam outlet user yang login yang boleh dihapus.
 
 ### Example
 
 ```
-DELETE api/product/550e8400-e29b-41d4-a716-446655440001
+DELETE /product/550e8400-e29b-41d4-a716-446655440002
 ```
 
 ### Response
@@ -244,115 +232,58 @@ DELETE api/product/550e8400-e29b-41d4-a716-446655440001
 ```json
 {
   "status": 200,
-  "message": "Product deleted successfully"
+  "message": "Product deleted successfully",
+  "data": {
+    "message": "Product deleted successfully"
+  }
 }
 ```
-
-### Error (Not Found)
-
-```json
-{
-  "message": "Product not found"
-}
-```
-
----
-
-## 🏷️ Category Relationship
-
-### Hubungan Kategori dan Product
-
-- **Product → Category**: One-to-One (nullable)
-  - Setiap product dapat memiliki maksimal 1 kategori
-  - Field `category_id` bersifat optional (bisa null)
-- **Category → Product**: One-to-Many
-  - Setiap kategori dapat memiliki banyak product
-  - Kategori dapat memiliki 0 atau lebih product
-
-### Contoh Penggunaan
-
-```json
-{
-  "name": "PlayStation 5",
-  "description": "Gaming console terbaru dari Sony",
-  "price": 8000000,
-  "stock": 10,
-  "category_id": "550e8400-e29b-41d4-a716-446655440003"
-}
-```
-
-**Note**: Jika `category_id` tidak disediakan atau null, product akan dibuat tanpa kategori.
-
----
-
-## 🛡️ Auth & Middleware
-
-Semua endpoint di atas:
-
-- **Memerlukan JWT Bearer Token** melalui header:
-
-  ```
-  Authorization: Bearer <token>
-  ```
-
-- **Dibatasi oleh middleware akses modul**:
-
-  ```
-  middleware.RequireModuleAccess("product")
-  ```
 
 ---
 
 ## 🔐 Permissions Required
 
-| Endpoint                 | Permission Required |
-| ------------------------ | ------------------- |
-| `GET api/product`        | `product:read`      |
-| `GET api/product/:id`    | `product:read`      |
-| `POST api/product`       | `product:create`    |
-| `PUT api/product/:id`    | `product:update`    |
-| `DELETE api/product/:id` | `product:delete`    |
+| Endpoint           | Permission      |
+| ------------------ | --------------- |
+| `GET /product`     | `product:read`  |
+| `GET /product/:id` | `product:read`  |
+| `POST /product`    | `product:create`|
+| `PATCH /product/:id` | `product:update`|
+| `DELETE /product/:id` | `product:delete`|
 
 ---
 
 ## 📋 Business Rules
 
-1. **Outlet Ownership**: Product terikat dengan outlet yang membuatnya
-2. **Outlet Access Control**:
-   - Admin dapat melihat semua products
-   - User biasa hanya dapat melihat products di outlet mereka
-3. **Stock Management**: Stock dapat diupdate untuk tracking inventory
-4. **Price Validation**: Price dan HPP harus berupa angka positif
-5. **SKU Uniqueness**: SKU harus unik dalam sistem (optional)
-6. **Product Status**: Product dapat diaktifkan/nonaktifkan dengan field `isActive`
-7. **Category Relationship**:
-   - Product dapat memiliki 1 kategori (nullable)
-   - Kategori dapat memiliki banyak product
-   - Field `category_id` bersifat optional
+1. **Outlet-based**: Produk dibuat dan di-scope ke outlet user yang login; list/detail/update/delete hanya untuk produk dalam outlet yang sama.
+2. **Create**: Produk baru selalu dapat `outlet_id` dari JWT, bukan dari body.
+3. **Update/Delete**: Hanya produk yang `outlet_id`-nya sama dengan outlet user yang login yang boleh diubah/hapus.
+4. **SKU**: Jika diisi, harus unik; konflik mengembalikan 409.
+5. **Category**: `category_id` opsional; bisa `null` untuk produk tanpa kategori.
 
 ---
 
 ## ⚠️ Error Responses
+
+### Not Found (404)
+
+```json
+{
+  "status": 404,
+  "message": "Product not found"
+}
+```
 
 ### Conflict (409)
 
 ```json
 {
   "status": 409,
-  "message": "Product with this name already exists"
+  "message": "Product with this SKU already exists"
 }
 ```
 
-### Forbidden (403)
-
-```json
-{
-  "status": 403,
-  "message": "You can only manage products in your outlet"
-}
-```
-
-### Validation Error (400)
+### Validation (400)
 
 ```json
 {
@@ -365,8 +296,21 @@ Semua endpoint di atas:
     },
     {
       "field": "price",
-      "message": "price must be a positive number"
+      "message": "price must be a number"
+    },
+    {
+      "field": "stock",
+      "message": "stock must be a number"
     }
   ]
+}
+```
+
+### Internal Server Error (500)
+
+```json
+{
+  "status": 500,
+  "message": "Failed to get products"
 }
 ```

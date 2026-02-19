@@ -22,10 +22,14 @@ import { ConfirmEmailDto } from './dto/confirm-email.dto';
 import { RegisterWithOutletDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RefreshTokenGuard } from './guards/refresh-auth.guard';
+import { LogsService } from '../logs/logs.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private logsService: LogsService,
+  ) {}
 
   @Post('refresh')
   @UseGuards(RefreshTokenGuard)
@@ -70,7 +74,8 @@ export class AuthController {
   }
 
   @Post('resend/verify')
-  async resendVerifEmail(@Req() req: Request): Promise<void> {
+  @UseGuards(JwtAuthGuard)
+  async resendVerifEmail(@Req() req: Request) {
     const user = req.user as UserEntity;
     try {
       await this.authService.sendVerificationEmail(user);
@@ -86,6 +91,13 @@ export class AuthController {
     try {
       const { access_token, refresh_token, user } =
         await this.authService.login(userLogin);
+      await this.logsService.createLog({
+        action: 'auth:login',
+        outletId: user.outletId ?? user.outlet?.id,
+        userId: user.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       const data = { access_token, refresh_token, user };
       return createSuccessResponse('Login Success', data);
     } catch (error) {
@@ -107,13 +119,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Req() req: Request, @Res() res: Response) {
-    const { id } = req.user as {
-      id: string;
-    };
+    const { id } = req.user as { id: string };
 
     try {
       const userData = await this.authService.getUserProfile(id);
-
       return res
         .status(HttpStatus.OK)
         .json(createSuccessResponse('Get profile success', userData));

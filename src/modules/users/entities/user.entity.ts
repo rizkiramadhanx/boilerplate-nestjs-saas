@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   JoinColumn,
 } from 'typeorm';
-import { Exclude, Expose, Transform } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { OutletEntity } from '../../outlets/entities/outlet.entity';
 import { RoleEntity } from '../../roles/entities/role.entity';
 
@@ -58,7 +58,8 @@ export class UserEntity {
 
   @ManyToOne(() => RoleEntity, (role) => role.users)
   @JoinColumn({ name: 'role_id' })
-  @Exclude()
+  @Expose({ name: 'role' })
+  @Type(() => RoleEntity)
   role?: RoleEntity;
 
   @Expose({ name: 'role_id' })

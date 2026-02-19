@@ -148,16 +148,37 @@ export class UserService {
   }
 
   async updateUserProfile(email: string, user: UpdateUserDto) {
-    const userExists = this.userRepository.findOne({ where: { email } });
+    const userExists = await this.userRepository.findOne({ where: { email } });
     if (!userExists) throw new NotFoundException('User not found');
 
-    Object.assign(userExists, user);
-    return this.userRepository.save(user);
+    if (user.name) userExists.name = user.name;
+    if (user.email) userExists.email = user.email;
+    if (user.picture !== undefined) userExists.picture = user.picture;
+    if (user.password) {
+      userExists.password = await bcrypt.hash(user.password, 10);
+    }
+    if (user.role_id) userExists.role = { id: user.role_id } as any;
+    if (user.outlet_id) userExists.outlet = { id: user.outlet_id } as any;
+
+    const updated = await this.userRepository.save(userExists);
+    const instance = plainToInstance(UserEntity, updated);
+    return instanceToPlain(instance, { exposeDefaultValues: true }) as Record<
+      string,
+      unknown
+    >;
   }
 
   async getAllUser(paginationDto: PaginationDto, currentUser: CurrentUserType) {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
+
+    const whereCondition: any = {};
+    if (currentUser.outlet?.id) {
+      whereCondition.outlet = { id: currentUser.outlet.id };
+    }
+    if (paginationDto.keyword?.trim()) {
+      whereCondition.name = ILike(`%${paginationDto.keyword.trim()}%`);
+    }
 
     const [users, total] = await this.userRepository.findAndCount({
       skip,
@@ -176,12 +197,7 @@ export class UserService {
           name: true,
         },
       },
-      where: {
-        name: ILike(`%${paginationDto.keyword}%`),
-        outlet: {
-          id: currentUser.outlet.id,
-        },
-      },
+      where: whereCondition,
     });
 
     const usersSerialized = plainToInstance(UserEntity, users);

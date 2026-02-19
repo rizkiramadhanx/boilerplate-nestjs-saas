@@ -6,11 +6,13 @@ import { CategoryEntity } from '../categories/entities/category.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
 import { UserEntity } from '../users/entities/user.entity';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ProductEntity, UserEntity, CategoryEntity]),
     UsersModule,
+    LogsModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsService],

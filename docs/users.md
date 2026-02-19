@@ -1,77 +1,29 @@
-# 👥 Users API Documentation
+# 👤 User API Documentation
 
 **Base URL:** `/user`
 
-Semua endpoint di bawah ini **memerlukan autentikasi JWT** dan akses module `user`.
+Semua endpoint memerlukan **autentikasi JWT** dan permission sesuai tabel di bawah.
 
 ---
 
-## 📌 Create User
-
-**POST** `/user`
-
-### Request Body
-
-| Field             | Type   | Required | Description                   |
-| ----------------- | ------ | -------- | ----------------------------- |
-| `name`            | string | ✅       | Nama lengkap user             |
-| `email`           | string | ✅       | Email unik user               |
-| `password`        | string | ✅       | Password minimal 8 karakter   |
-| `confirmPassword` | string | ✅       | Konfirmasi password           |
-| `outlet_id`       | UUID   | ✅       | ID outlet tempat user bekerja |
-| `role_id`         | UUID   | ❌       | ID role user (optional)       |
-| `picture`         | string | ❌       | URL foto profil (optional)    |
-
-```json
-{
-  "name": "New User",
-  "email": "newuser@example.com",
-  "password": "Password123!",
-  "confirmPassword": "Password123!",
-  "picture": "https://example.com/new-avatar.jpg",
-  "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-  "role_id": "550e8400-e29b-41d4-a716-446655440001"
-}
-```
-
-### Response
-
-```json
-{
-  "status": 201,
-  "message": "User created successfully",
-  "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440002",
-    "name": "New User",
-    "email": "newuser@example.com",
-    "isConfirmed": false,
-    "picture": "https://example.com/new-avatar.jpg",
-    "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-    "role_id": "550e8400-e29b-41d4-a716-446655440001",
-    "createdAt": "2025-09-19T08:26:46.000Z",
-    "updatedAt": "2025-09-19T08:26:46.000Z"
-  }
-}
-```
-
----
-
-## 📌 Get All Users (Pagination + Search)
+## 📌 Get All Users
 
 **GET** `/user`
 
+Mengambil daftar user untuk outlet user yang login, dengan paginasi dan filter nama.
+
 ### Query Parameters
 
-| Parameter | Type   | Description                  |
-| --------- | ------ | ---------------------------- |
-| `page`    | int    | Page number (default: 1)     |
-| `limit`   | int    | Items per page (default: 10) |
-| `keyword` | string | Search by name (optional)    |
+| Parameter | Tipe   | Default | Keterangan                         |
+| --------- | ------ | ------- | ---------------------------------- |
+| `page`    | number | 1       | Halaman                            |
+| `limit`   | number | 10      | Jumlah per halaman                 |
+| `keyword` | string | -       | Filter nama user (case-insensitive) |
 
 ### Example
 
 ```
-GET /user?page=1&limit=5&keyword=admin
+GET /user?page=1&limit=10&keyword=John
 ```
 
 ### Response
@@ -83,19 +35,23 @@ GET /user?page=1&limit=5&keyword=admin
   "data": [
     {
       "id": "550e8400-e29b-41d4-a716-446655440001",
-      "name": "Admin User",
-      "email": "admin@example.com",
-      "isConfirmed": true,
-      "picture": "https://example.com/avatar.jpg",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "picture": null,
+      "created_at": "2025-09-19T08:26:46.000Z",
+      "updated_at": "2025-09-19T08:26:46.000Z",
+      "role_id": "550e8400-e29b-41d4-a716-446655440002",
       "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-      "role_id": "550e8400-e29b-41d4-a716-446655440001",
-      "createdAt": "2025-09-19T08:26:46.000Z",
-      "updatedAt": "2025-09-19T08:26:46.000Z"
+      "role": {
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "name": "Manager",
+        "isAdmin": false
+      }
     }
   ],
   "meta": {
     "page": 1,
-    "limit": 5,
+    "limit": 10,
     "total": 1,
     "total_page": 1
   }
@@ -104,9 +60,11 @@ GET /user?page=1&limit=5&keyword=admin
 
 ---
 
-## 📌 Get User by ID
+## 📌 Get User By ID
 
 **GET** `/user/:id`
+
+Mengambil detail satu user berdasarkan ID. User non-admin hanya bisa mengakses user dalam outlet yang sama.
 
 ### Example
 
@@ -122,24 +80,70 @@ GET /user/550e8400-e29b-41d4-a716-446655440001
   "message": "Get user success",
   "data": {
     "id": "550e8400-e29b-41d4-a716-446655440001",
-    "name": "Admin User",
-    "email": "admin@example.com",
-    "isConfirmed": true,
-    "picture": "https://example.com/avatar.jpg",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "is_confirmed": false,
+    "picture": null,
+    "created_at": "2025-09-19T08:26:46.000Z",
+    "updated_at": "2025-09-19T08:26:46.000Z",
     "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-    "role_id": "550e8400-e29b-41d4-a716-446655440001",
-    "createdAt": "2025-09-19T08:26:46.000Z",
-    "updatedAt": "2025-09-19T08:26:46.000Z"
+    "role_id": "550e8400-e29b-41d4-a716-446655440002",
+    "role": {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "name": "Manager",
+      "isAdmin": false
+    }
   }
 }
 ```
 
-### Error (Not Found)
+---
+
+## 📌 Create User
+
+**POST** `/user`
+
+Membuat user baru di **outlet user yang login**. Outlet diambil dari JWT.
+
+### Request Body
 
 ```json
 {
-  "status": 404,
-  "message": "User not found"
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!",
+  "role_id": "550e8400-e29b-41d4-a716-446655440002",
+  "picture": "https://example.com/photo.jpg"
+}
+```
+
+| Field            | Tipe   | Wajib | Keterangan                    |
+| ---------------- | ------ | ----- | ----------------------------- |
+| name             | string | ✅    | Nama user                     |
+| email            | string | ✅    | Email (unik)                  |
+| password         | string | ✅    | Min 8 karakter                |
+| confirmPassword  | string | ✅    | Harus sama dengan password    |
+| role_id          | UUID   | -     | ID role (opsional)            |
+| picture          | string | -     | URL foto profil               |
+
+### Response
+
+```json
+{
+  "status": 201,
+  "message": "User created successfully",
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "is_confirmed": false,
+    "picture": "https://example.com/photo.jpg",
+    "created_at": "2025-09-19T09:00:00.000Z",
+    "updated_at": "2025-09-19T09:00:00.000Z",
+    "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
+    "role_id": "550e8400-e29b-41d4-a716-446655440002"
+  }
 }
 ```
 
@@ -149,27 +153,29 @@ GET /user/550e8400-e29b-41d4-a716-446655440001
 
 **PUT** `/user/:id`
 
-### Request Body
+Mengubah data user. Semua field opsional; hanya field yang dikirim yang di-update. User non-admin hanya bisa mengubah user dalam outlet yang sama.
 
-| Field       | Type   | Required | Description                   |
-| ----------- | ------ | -------- | ----------------------------- |
-| `name`      | string | ❌       | Nama lengkap user             |
-| `email`     | string | ❌       | Email unik user               |
-| `password`  | string | ❌       | Password minimal 8 karakter   |
-| `outlet_id` | UUID   | ❌       | ID outlet tempat user bekerja |
-| `role_id`   | UUID   | ❌       | ID role user                  |
-| `picture`   | string | ❌       | URL foto profil               |
+### Request Body
 
 ```json
 {
-  "name": "Updated User",
-  "email": "updated@example.com",
+  "name": "Jane Updated",
+  "email": "jane.new@example.com",
   "password": "NewPassword123!",
-  "picture": "https://example.com/updated-avatar.jpg",
+  "role_id": "550e8400-e29b-41d4-a716-446655440004",
   "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-  "role_id": "550e8400-e29b-41d4-a716-446655440002"
+  "picture": "https://example.com/new-photo.jpg"
 }
 ```
+
+| Field     | Tipe   | Wajib | Keterangan     |
+| --------- | ------ | ----- | --------------- |
+| name      | string | -     | Nama user       |
+| email     | string | -     | Email (unik)    |
+| password  | string | -     | Min 8 karakter  |
+| role_id   | UUID   | -     | ID role         |
+| outlet_id | UUID   | -     | ID outlet       |
+| picture   | string | -     | URL foto profil |
 
 ### Response
 
@@ -178,15 +184,15 @@ GET /user/550e8400-e29b-41d4-a716-446655440001
   "status": 200,
   "message": "User updated successfully",
   "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440001",
-    "name": "Updated User",
-    "email": "updated@example.com",
-    "isConfirmed": true,
-    "picture": "https://example.com/updated-avatar.jpg",
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "name": "Jane Updated",
+    "email": "jane.new@example.com",
+    "is_confirmed": false,
+    "picture": "https://example.com/new-photo.jpg",
+    "created_at": "2025-09-19T09:00:00.000Z",
+    "updated_at": "2025-09-19T09:15:00.000Z",
     "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-    "role_id": "550e8400-e29b-41d4-a716-446655440002",
-    "createdAt": "2025-09-19T08:26:46.000Z",
-    "updatedAt": "2025-09-19T08:30:46.000Z"
+    "role_id": "550e8400-e29b-41d4-a716-446655440004"
   }
 }
 ```
@@ -197,10 +203,12 @@ GET /user/550e8400-e29b-41d4-a716-446655440001
 
 **DELETE** `/user/:id`
 
+Menghapus user. User non-admin hanya bisa menghapus user dalam outlet yang sama.
+
 ### Example
 
 ```
-DELETE /user/550e8400-e29b-41d4-a716-446655440001
+DELETE /user/550e8400-e29b-41d4-a716-446655440003
 ```
 
 ### Response
@@ -208,65 +216,46 @@ DELETE /user/550e8400-e29b-41d4-a716-446655440001
 ```json
 {
   "status": 200,
-  "message": "User deleted successfully"
+  "message": "User deleted successfully",
+  "data": {
+    "message": "User deleted successfully"
+  }
 }
 ```
-
-### Error (Not Found)
-
-```json
-{
-  "message": "User not found"
-}
-```
-
----
-
-## 🛡️ Auth & Middleware
-
-Semua endpoint di atas:
-
-- **Memerlukan JWT Bearer Token** melalui header:
-
-  ```
-  Authorization: Bearer <token>
-  ```
-
-- **Dibatasi oleh middleware akses modul**:
-
-  ```
-  middleware.RequireModuleAccess("user")
-  ```
 
 ---
 
 ## 🔐 Permissions Required
 
-| Endpoint           | Permission Required |
-| ------------------ | ------------------- |
-| `GET /user`        | `user:read`         |
-| `GET /user/:id`    | `user:read`         |
-| `POST /user`       | `user:create`       |
-| `PUT /user/:id`    | `user:update`       |
-| `DELETE /user/:id` | `user:delete`       |
+| Endpoint        | Permission    |
+| --------------- | ------------- |
+| `GET /user`     | `user:read`   |
+| `GET /user/:id` | `user:read`   |
+| `POST /user`    | `user:create` |
+| `PUT /user/:id` | `user:update` |
+| `DELETE /user/:id` | `user:delete` |
 
 ---
 
 ## 📋 Business Rules
 
-1. **Email Uniqueness**: Email harus unik dalam sistem
-2. **Outlet Access Control**:
-   - Admin dapat mengelola users di semua outlet
-   - User biasa hanya dapat mengelola users di outlet mereka
-3. **Password Hashing**: Password akan di-hash sebelum disimpan
-4. **Email Verification**: User baru perlu verifikasi email
-5. **Optional Fields**:
-   - `picture` adalah field optional yang bisa dikosongkan
-   - Field `name` wajib diisi saat create user
+1. **Outlet-based**: User dibuat dan di-scope ke outlet user yang login; list/detail/update/delete hanya untuk user dalam outlet yang sama (kecuali admin).
+2. **Create**: User baru selalu dapat `outlet_id` dari JWT, bukan dari body.
+3. **Update/Delete**: Hanya user yang `outlet_id`-nya sama dengan outlet user yang login yang boleh diubah/hapus (admin bisa sesuai kebijakan).
+4. **Email**: Harus unik; konflik mengembalikan 409.
 
 ---
 
 ## ⚠️ Error Responses
+
+### Not Found (404)
+
+```json
+{
+  "status": 404,
+  "message": "User not found"
+}
+```
 
 ### Conflict (409)
 
@@ -277,16 +266,7 @@ Semua endpoint di atas:
 }
 ```
 
-### Forbidden (403)
-
-```json
-{
-  "status": 403,
-  "message": "You can only create users in your outlet"
-}
-```
-
-### Validation Error (400)
+### Validation (400)
 
 ```json
 {
@@ -295,7 +275,7 @@ Semua endpoint di atas:
   "errors": [
     {
       "field": "email",
-      "message": "email must be a valid email"
+      "message": "email must be an email"
     },
     {
       "field": "password",

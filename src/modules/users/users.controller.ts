@@ -24,11 +24,15 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CreateUserDto } from './dto/base-user.dto';
 import { UpdateUserDto } from './dto/create-user.dto';
 import { CurrentUser, CurrentUserType } from '../../security/user.decorator';
+import { LogsService } from '../logs/logs.service';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('user')
 export class UserController {
-  constructor(private readonly usersService: UserService) {}
+  constructor(
+    private readonly usersService: UserService,
+    private readonly logsService: LogsService,
+  ) {}
 
   @Permissions('user:read')
   @Get()
@@ -42,6 +46,15 @@ export class UserController {
         paginationDto,
         currentUser,
       );
+
+      await this.logsService.createLog({
+        action: 'user:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
+
       res.status(HttpStatus.OK);
       return createSuccessResponse(
         'Get All user success',
@@ -49,7 +62,13 @@ export class UserController {
         result.meta,
       );
     } catch (err) {
-      console.error('Failed get all user profile', err);
+      await this.logsService.createLog({
+        action: 'user:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
       res.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return createErrorResponse(
         'Failed to get profile',
@@ -67,10 +86,24 @@ export class UserController {
   ) {
     try {
       const user = await this.usersService.getUserById(id, currentUser);
+      await this.logsService.createLog({
+        action: 'user:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Get user success', user);
     } catch (err) {
       console.error('Failed get user by id', err);
+      await this.logsService.createLog({
+        action: 'user:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse('User not found', HttpStatus.NOT_FOUND);
     }
@@ -88,10 +121,24 @@ export class UserController {
         createUserDto,
         currentUser,
       );
+      await this.logsService.createLog({
+        action: 'user:create',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.CREATED,
+      });
       res.status(HttpStatus.CREATED);
       return createSuccessResponse('User created successfully', user);
     } catch (err) {
       console.error('Failed create user', err);
+      await this.logsService.createLog({
+        action: 'user:create',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.CONFLICT,
+      });
       res.status(HttpStatus.CONFLICT);
       return createErrorResponse('Failed to create user', HttpStatus.CONFLICT);
     }
@@ -111,10 +158,24 @@ export class UserController {
         updateUserDto,
         currentUser,
       );
+      await this.logsService.createLog({
+        action: 'user:update',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('User updated successfully', user);
     } catch (err) {
       console.error('Failed update user', err);
+      await this.logsService.createLog({
+        action: 'user:update',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse('Failed to update user', HttpStatus.NOT_FOUND);
     }
@@ -129,10 +190,24 @@ export class UserController {
   ) {
     try {
       const result = await this.usersService.deleteUser(id, currentUser);
+      await this.logsService.createLog({
+        action: 'user:delete',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('User deleted successfully', result);
     } catch (err) {
       console.error('Failed delete user', err);
+      await this.logsService.createLog({
+        action: 'user:delete',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse('Failed to delete user', HttpStatus.NOT_FOUND);
     }

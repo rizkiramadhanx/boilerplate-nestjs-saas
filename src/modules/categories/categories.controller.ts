@@ -24,11 +24,15 @@ import {
   createSuccessResponse,
   createErrorResponse,
 } from '../../common/type/response';
+import { LogsService } from '../logs/logs.service';
 
 @Controller('category')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(
+    private readonly categoriesService: CategoriesService,
+    private readonly logsService: LogsService,
+  ) {}
 
   @Permissions('category:create')
   @Post()
@@ -42,10 +46,24 @@ export class CategoriesController {
         createCategoryDto,
         currentUser,
       );
+      await this.logsService.createLog({
+        action: 'category:create',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.CREATED,
+      });
       res.status(HttpStatus.CREATED);
       return createSuccessResponse('Category created successfully', category);
     } catch (err) {
       console.error('Failed create category', err);
+      await this.logsService.createLog({
+        action: 'category:create',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.CONFLICT,
+      });
       res.status(HttpStatus.CONFLICT);
       return createErrorResponse(
         'Failed to create category',
@@ -66,6 +84,13 @@ export class CategoriesController {
         paginationDto,
         currentUser,
       );
+      await this.logsService.createLog({
+        action: 'category:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse(
         'Get all categories success',
@@ -74,6 +99,13 @@ export class CategoriesController {
       );
     } catch (err) {
       console.error('Failed get all categories', err);
+      await this.logsService.createLog({
+        action: 'category:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
       res.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return createErrorResponse(
         'Failed to get categories',
@@ -91,10 +123,24 @@ export class CategoriesController {
   ) {
     try {
       const category = await this.categoriesService.findOne(id, currentUser);
+      await this.logsService.createLog({
+        action: 'category:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Get category success', category);
     } catch (err) {
       console.error('Failed get category by id', err);
+      await this.logsService.createLog({
+        action: 'category:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse('Category not found', HttpStatus.NOT_FOUND);
     }
@@ -114,10 +160,24 @@ export class CategoriesController {
         updateCategoryDto,
         currentUser,
       );
+      await this.logsService.createLog({
+        action: 'category:update',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Category updated successfully', category);
     } catch (err) {
       console.error('Failed update category', err);
+      await this.logsService.createLog({
+        action: 'category:update',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse(
         'Failed to update category',
@@ -135,10 +195,24 @@ export class CategoriesController {
   ) {
     try {
       const result = await this.categoriesService.remove(id, currentUser);
+      await this.logsService.createLog({
+        action: 'category:delete',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Category deleted successfully', result);
     } catch (err) {
       console.error('Failed delete category', err);
+      await this.logsService.createLog({
+        action: 'category:delete',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse(
         'Failed to delete category',

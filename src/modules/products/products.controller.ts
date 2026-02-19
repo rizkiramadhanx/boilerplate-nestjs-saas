@@ -24,11 +24,15 @@ import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { BaseProductDto } from './dto/base-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
+import { LogsService } from '../logs/logs.service';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('product')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly logsService: LogsService,
+  ) {}
 
   @Permissions('product:read')
   @Get()
@@ -42,6 +46,13 @@ export class ProductsController {
         paginationDto,
         currentUser,
       );
+      await this.logsService.createLog({
+        action: 'product:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse(
         'Get all products success',
@@ -50,6 +61,13 @@ export class ProductsController {
       );
     } catch (err) {
       console.error('Failed get all products', err);
+      await this.logsService.createLog({
+        action: 'product:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
       res.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return createErrorResponse(
         'Failed to get products',
@@ -70,10 +88,24 @@ export class ProductsController {
         id,
         currentUser,
       );
+      await this.logsService.createLog({
+        action: 'product:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Get product success', product);
     } catch (err) {
       console.error('Failed get product by id', err);
+      await this.logsService.createLog({
+        action: 'product:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse('Product not found', HttpStatus.NOT_FOUND);
     }
@@ -91,10 +123,24 @@ export class ProductsController {
         createProductDto,
         currentUser,
       );
+      await this.logsService.createLog({
+        action: 'product:create',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.CREATED,
+      });
       res.status(HttpStatus.CREATED);
       return createSuccessResponse('Product created successfully', product);
     } catch (err) {
       console.error('Failed create product', err);
+      await this.logsService.createLog({
+        action: 'product:create',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.CONFLICT,
+      });
       res.status(HttpStatus.CONFLICT);
       return createErrorResponse(
         'Failed to create product',
@@ -117,10 +163,24 @@ export class ProductsController {
         updateProductDto,
         currentUser,
       );
+      await this.logsService.createLog({
+        action: 'product:update',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Product updated successfully', product);
     } catch (err) {
       console.error('Failed update product', err);
+      await this.logsService.createLog({
+        action: 'product:update',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse(
         'Failed to update product',
@@ -138,10 +198,24 @@ export class ProductsController {
   ) {
     try {
       const result = await this.productsService.deleteProduct(id, currentUser);
+      await this.logsService.createLog({
+        action: 'product:delete',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Product deleted successfully', result);
     } catch (err) {
       console.error('Failed delete product', err);
+      await this.logsService.createLog({
+        action: 'product:delete',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse(
         'Failed to delete product',

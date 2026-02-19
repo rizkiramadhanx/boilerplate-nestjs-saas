@@ -16,10 +16,6 @@ export class CreateRoleDto {
   @MaxLength(100)
   name: string;
 
-  @IsBoolean()
-  @IsOptional()
-  isAdmin?: boolean = false;
-
   @IsArray()
   @ArrayUnique()
   @ArrayNotEmpty()

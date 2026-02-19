@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository, ILike, FindOptionsWhere } from 'typeorm';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { RoleEntity } from './entities/role.entity';
 import { OutletEntity } from '../outlets/entities/outlet.entity';
@@ -46,15 +46,19 @@ export class RolesService {
     const { page = 1, limit = 10, keyword } = paginationDto;
     const skip = (page - 1) * limit;
 
+    const whereCondition: FindOptionsWhere<RoleEntity> = {
+      outlet: { id: currentUser.outlet.id },
+      ...(keyword?.trim() ? { name: ILike(`%${keyword.trim()}%`) } : {}),
+    };
+
     const [roles, total] = await this.roleRepo.findAndCount({
       skip,
       take: limit,
-      where: {
-        name: ILike(`%${keyword}%`),
-        outlet: { id: currentUser.outlet.id },
-      },
+      where: whereCondition,
       order: { id: 'ASC' },
     });
+
+    // console.log(roles);
 
     const rolesSerialized = plainToInstance(RoleEntity, roles, {
       exposeDefaultValues: true,
@@ -100,8 +104,13 @@ export class RolesService {
   ) {
     const role = await this.roleRepo.findOne({
       where: { id: roleId },
+      relations: ['outlet'],
     });
+
     if (!role) throw new NotFoundException('Role not found');
+
+    if (role.isAdmin) throw new ForbiddenException('Admin tidak boleh diganti');
+
     if (role.outlet?.id !== currentUser.outlet.id)
       throw new ForbiddenException('Cross-outlet access forbidden');
 
@@ -118,14 +127,15 @@ export class RolesService {
   async deleteRole(roleId: string, currentUser: CurrentUserType) {
     const role = await this.roleRepo.findOne({
       where: { id: roleId },
+      relations: ['outlet'],
     });
+
+    if (role.isAdmin) throw new ForbiddenException('Admin tidak boleh dihapus');
+
     if (!role) throw new NotFoundException('Role not found');
+
     if (role.outlet?.id !== currentUser.outlet.id)
       throw new ForbiddenException('Cross-outlet access forbidden');
-
-    if (role.isAdmin) {
-      throw new ForbiddenException('Admin role cannot be deleted');
-    }
 
     await this.roleRepo.delete(roleId);
     return true;

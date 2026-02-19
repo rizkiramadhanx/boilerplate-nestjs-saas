@@ -24,11 +24,15 @@ import {
   createErrorResponse,
 } from '../../common/type/response';
 import ACTION_ROLES from 'src/constant/action-roles';
+import { LogsService } from '../logs/logs.service';
 
-@Controller('roles')
+@Controller('role')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) {}
+  constructor(
+    private readonly rolesService: RolesService,
+    private readonly logsService: LogsService,
+  ) {}
 
   @Get()
   @Permissions('role:read')
@@ -39,6 +43,13 @@ export class RolesController {
   ) {
     try {
       const result = await this.rolesService.list(paginationDto, currentUser);
+      await this.logsService.createLog({
+        action: 'role:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse(
         'Get all roles success',
@@ -47,6 +58,13 @@ export class RolesController {
       );
     } catch (err) {
       console.error('Failed get all roles', err);
+      await this.logsService.createLog({
+        action: 'role:read',
+        outletId: currentUser.outlet?.id,
+        userId: currentUser.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
       res.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return createErrorResponse(
         'Failed to get roles',
@@ -56,7 +74,14 @@ export class RolesController {
   }
 
   @Get('list-action')
-  async listRoles() {
+  async listRoles(@CurrentUser() currentUser: CurrentUserType) {
+    await this.logsService.createLog({
+      action: 'role:list-action',
+      outletId: currentUser.outlet?.id,
+      userId: currentUser.id,
+      status: 'SUCCESS',
+      statusCode: HttpStatus.OK,
+    });
     return {
       status: HttpStatus.OK,
       message: 'Action list',
@@ -77,10 +102,24 @@ export class RolesController {
         dto,
         user,
       );
+      await this.logsService.createLog({
+        action: 'role:create',
+        outletId: user.outlet?.id,
+        userId: user.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.CREATED,
+      });
       res.status(HttpStatus.CREATED);
       return createSuccessResponse('Role created', created);
     } catch (err) {
       console.error('Failed create role', err);
+      await this.logsService.createLog({
+        action: 'role:create',
+        outletId: user.outlet?.id,
+        userId: user.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.CONFLICT,
+      });
       res.status(HttpStatus.CONFLICT);
       return createErrorResponse('Failed to create role', HttpStatus.CONFLICT);
     }
@@ -95,10 +134,24 @@ export class RolesController {
   ) {
     try {
       const items = await this.rolesService.detailRole(roleId, user);
+      await this.logsService.createLog({
+        action: 'role:read',
+        outletId: user.outlet?.id,
+        userId: user.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Role detail', items);
     } catch (err) {
       console.error('Failed get role detail', err);
+      await this.logsService.createLog({
+        action: 'role:read',
+        outletId: user.outlet?.id,
+        userId: user.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse('Role not found', HttpStatus.NOT_FOUND);
     }
@@ -114,10 +167,24 @@ export class RolesController {
   ) {
     try {
       const updated = await this.rolesService.updateRole(roleId, dto, user);
+      await this.logsService.createLog({
+        action: 'role:update',
+        outletId: user.outlet?.id,
+        userId: user.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Role updated', updated);
     } catch (err) {
       console.error('Failed update role', err);
+      await this.logsService.createLog({
+        action: 'role:update',
+        outletId: user.outlet?.id,
+        userId: user.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse('Failed to update role', HttpStatus.NOT_FOUND);
     }
@@ -132,10 +199,24 @@ export class RolesController {
   ) {
     try {
       await this.rolesService.deleteRole(roleId, user);
+      await this.logsService.createLog({
+        action: 'role:delete',
+        outletId: user.outlet?.id,
+        userId: user.id,
+        status: 'SUCCESS',
+        statusCode: HttpStatus.OK,
+      });
       res.status(HttpStatus.OK);
       return createSuccessResponse('Role deleted', true);
     } catch (err) {
       console.error('Failed delete role', err);
+      await this.logsService.createLog({
+        action: 'role:delete',
+        outletId: user.outlet?.id,
+        userId: user.id,
+        status: 'ERROR',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
       res.status(HttpStatus.NOT_FOUND);
       return createErrorResponse('Failed to delete role', HttpStatus.NOT_FOUND);
     }
