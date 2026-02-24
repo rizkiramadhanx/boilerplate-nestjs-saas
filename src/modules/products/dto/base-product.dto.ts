@@ -44,7 +44,7 @@ export class BaseProductDto {
   @IsOptional()
   isActive?: boolean;
 
-  @IsUUID()
   @IsOptional()
-  category_id?: string;
+  @IsUUID(undefined, { message: 'category_id must be a valid UUID when provided' })
+  category_id?: string | null;
 }

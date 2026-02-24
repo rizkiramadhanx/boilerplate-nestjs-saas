@@ -4,6 +4,12 @@
 
 Semua endpoint memerlukan **autentikasi JWT** dan permission sesuai tabel di bawah.
 
+## Relasi kategori
+
+- Satu **product** punya **satu kategori** (opsional / **nullable**).
+- Satu **kategori** punya **banyak product**.
+- Di response: selalu ada `category_id` (UUID atau `null`) dan `category` (object `{ id, name }` atau `null`).
+
 ---
 
 ## 📌 Get All Products
@@ -19,6 +25,8 @@ Mengambil daftar produk untuk outlet user yang login, dengan paginasi dan filter
 | `page`    | number | 1       | Halaman                            |
 | `limit`   | number | 10      | Jumlah per halaman                  |
 | `keyword` | string | -       | Filter nama produk (case-insensitive) |
+
+Setiap item di `data` berisi `category_id` (UUID atau `null`) dan `category` (`{ id, name }` atau `null`).
 
 ### Example
 
@@ -46,7 +54,8 @@ GET /product?page=1&limit=10&keyword=Cincin
       "created_at": "2025-09-19T08:26:46.000Z",
       "updated_at": "2025-09-19T08:26:46.000Z",
       "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-      "category_id": "550e8400-e29b-41d4-a716-446655440010"
+      "category_id": "550e8400-e29b-41d4-a716-446655440010",
+      "category": { "id": "550e8400-e29b-41d4-a716-446655440010", "name": "Emas Murni" }
     }
   ],
   "meta": {
@@ -91,7 +100,8 @@ GET /product/550e8400-e29b-41d4-a716-446655440001
     "created_at": "2025-09-19T08:26:46.000Z",
     "updated_at": "2025-09-19T08:26:46.000Z",
     "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-    "category_id": "550e8400-e29b-41d4-a716-446655440010"
+    "category_id": "550e8400-e29b-41d4-a716-446655440010",
+    "category": { "id": "550e8400-e29b-41d4-a716-446655440010", "name": "Emas Murni" }
   }
 }
 ```
@@ -130,7 +140,7 @@ Membuat produk baru di **outlet user yang login**. Outlet diambil dari JWT.
 | stock        | number  | ✅    | Jumlah stok                          |
 | sku          | string  | -     | SKU (harus unik, konflik → 409)      |
 | isActive     | boolean | -     | Status aktif, default `true`         |
-| category_id  | UUID    | -     | ID kategori (opsional)               |
+| category_id  | UUID \| null | -     | ID kategori (opsional, nullable). Omit atau `null` = tanpa kategori |
 
 ### Response
 
@@ -151,7 +161,8 @@ Membuat produk baru di **outlet user yang login**. Outlet diambil dari JWT.
     "created_at": "2025-09-19T09:00:00.000Z",
     "updated_at": "2025-09-19T09:00:00.000Z",
     "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-    "category_id": "550e8400-e29b-41d4-a716-446655440010"
+    "category_id": "550e8400-e29b-41d4-a716-446655440010",
+    "category": { "id": "550e8400-e29b-41d4-a716-446655440010", "name": "Emas Murni" }
   }
 }
 ```
@@ -187,7 +198,7 @@ Mengubah data produk. Semua field opsional; hanya field yang dikirim yang di-upd
 | stock        | number  | -     | Stok            |
 | sku          | string  | -     | SKU (unik)      |
 | isActive     | boolean | -     | Status aktif    |
-| category_id  | UUID    | -     | ID kategori     |
+| category_id  | UUID \| null | -     | ID kategori. Kirim `null` untuk melepas kategori |
 
 ### Response
 
@@ -208,7 +219,8 @@ Mengubah data produk. Semua field opsional; hanya field yang dikirim yang di-upd
     "created_at": "2025-09-19T09:00:00.000Z",
     "updated_at": "2025-09-19T09:15:00.000Z",
     "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
-    "category_id": "550e8400-e29b-41d4-a716-446655440011"
+    "category_id": "550e8400-e29b-41d4-a716-446655440011",
+    "category": { "id": "550e8400-e29b-41d4-a716-446655440011", "name": "Emas 18K" }
   }
 }
 ```
@@ -259,7 +271,7 @@ DELETE /product/550e8400-e29b-41d4-a716-446655440002
 2. **Create**: Produk baru selalu dapat `outlet_id` dari JWT, bukan dari body.
 3. **Update/Delete**: Hanya produk yang `outlet_id`-nya sama dengan outlet user yang login yang boleh diubah/hapus.
 4. **SKU**: Jika diisi, harus unik; konflik mengembalikan 409.
-5. **Category**: `category_id` opsional; bisa `null` untuk produk tanpa kategori.
+5. **Category (nullable)**: `category_id` opsional; boleh tidak dikirim atau dikirim `null` = produk tanpa kategori. Saat update, kirim `category_id: null` untuk melepas kategori. Response selalu menyertakan `category_id` dan `category` (object `{ id, name }` atau `null`). Satu product maksimal satu kategori; satu kategori bisa punya banyak product.
 
 ---
 

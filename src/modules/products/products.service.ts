@@ -69,20 +69,27 @@ export class ProductsService {
       skip,
       take: limit,
       where: {
-        name: ILike(`%${paginationDto.keyword}%`),
+        name: paginationDto.keyword && ILike(`%${paginationDto.keyword}%`),
         outlet: { id: currentUser.outlet.id },
       },
       relations: ['outlet', 'category'],
     });
 
-    const productsSerialized = plainToInstance(ProductEntity, products, {
-      excludeExtraneousValues: true,
+    const productsSerialized = plainToInstance(ProductEntity, products);
+    const list = Array.isArray(productsSerialized)
+      ? productsSerialized
+      : [productsSerialized];
+    const data = list.map((p, i) => {
+      const plain = instanceToPlain(p, {
+        excludeExtraneousValues: true,
+      }) as Record<string, unknown>;
+      // Category dari hasil query (relation sudah di-load), supaya pasti muncul di response
+      const raw = products[i];
+      plain.category = raw?.category
+        ? { id: raw.category.id, name: raw.category.name }
+        : null;
+      return plain;
     });
-    const data = (
-      Array.isArray(productsSerialized)
-        ? productsSerialized
-        : [productsSerialized]
-    ).map((p) => instanceToPlain(p) as Record<string, unknown>);
 
     const totalPage = Math.ceil(total / limit);
 
@@ -110,7 +117,13 @@ export class ProductsService {
     }
 
     const instance = plainToInstance(ProductEntity, product);
-    return instanceToPlain(instance) as Record<string, unknown>;
+    const plain = instanceToPlain(instance, {
+      excludeExtraneousValues: true,
+    }) as Record<string, unknown>;
+    plain.category = product.category
+      ? { id: product.category.id, name: product.category.name }
+      : null;
+    return plain;
   }
 
   async updateProduct(

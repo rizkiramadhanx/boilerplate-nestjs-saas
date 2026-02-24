@@ -38,7 +38,11 @@ GET /category?page=1&limit=10&keyword=Emas
       "name": "Emas Murni",
       "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
       "created_at": "2025-09-19T08:26:46.000Z",
-      "updated_at": "2025-09-19T08:26:46.000Z"
+      "updated_at": "2025-09-19T08:26:46.000Z",
+      "products": [
+        { "id": "550e8400-e29b-41d4-a716-446655440001", "name": "Cincin Emas 24K" },
+        { "id": "550e8400-e29b-41d4-a716-446655440002", "name": "Gelang Emas 18K" }
+      ]
     }
   ],
   "meta": {
@@ -75,10 +79,16 @@ GET /category/550e8400-e29b-41d4-a716-446655440010
     "name": "Emas Murni",
     "outlet_id": "550e8400-e29b-41d4-a716-446655440000",
     "created_at": "2025-09-19T08:26:46.000Z",
-    "updated_at": "2025-09-19T08:26:46.000Z"
+    "updated_at": "2025-09-19T08:26:46.000Z",
+    "products": [
+      { "id": "550e8400-e29b-41d4-a716-446655440001", "name": "Cincin Emas 24K" },
+      { "id": "550e8400-e29b-41d4-a716-446655440002", "name": "Gelang Emas 18K" }
+    ]
   }
 }
 ```
+
+**Relasi:** Satu kategori punya **banyak product** (array `products` berisi `id` dan `name` tiap product).
 
 ---
 

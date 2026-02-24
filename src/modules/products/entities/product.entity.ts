@@ -71,9 +71,17 @@ export class ProductEntity {
   })
   @JoinColumn({ name: 'category_id' })
   @Exclude()
-  category: CategoryEntity;
+  category: CategoryEntity | null;
 
   @Expose({ name: 'category_id' })
   @Transform(({ obj }) => obj.category?.id ?? obj.categoryId ?? null)
   categoryId?: string;
+
+  /** Di-serialize sebagai `category` di response (id + name saja). */
+  @Expose({ name: 'category' })
+  @Transform(({ obj }) => {
+    if (!obj.category) return null;
+    return { id: obj.category.id, name: obj.category.name };
+  })
+  categoryInfo?: { id: string; name: string } | null;
 }

@@ -34,7 +34,6 @@ export class CategoryEntity {
   outletId?: string;
 
   @OneToMany(() => ProductEntity, (product) => product.category)
-  @Exclude()
   products: ProductEntity[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })

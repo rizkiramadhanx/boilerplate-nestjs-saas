@@ -57,7 +57,6 @@ export class CategoriesService {
         name: ILike(`%${keyword}%`),
         outlet: { id: currentUser.outlet.id },
       },
-      relations: ['products'],
     });
 
     const categoriesSerialized = plainToInstance(CategoryEntity, categories, {
