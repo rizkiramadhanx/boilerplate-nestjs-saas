@@ -7,7 +7,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import config from '../../../config/jwt.config';
+import config from '../../../../config/jwt.config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../../users/entities/user.entity';

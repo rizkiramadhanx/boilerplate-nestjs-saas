@@ -7,7 +7,7 @@ import {
   MinLength,
   IsStrongPassword,
 } from 'class-validator';
-import { Match } from '../../../common/decorators/confirmPassword.decorator';
+import { Match } from '../../../../common/decorators/confirmPassword.decorator';
 
 export class CreateUserDto {
   @IsString()

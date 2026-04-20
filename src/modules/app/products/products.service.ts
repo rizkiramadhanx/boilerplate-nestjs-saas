@@ -7,13 +7,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { BaseProductDto } from './dto/base-product.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { ILike, Repository } from 'typeorm';
 import { ProductEntity } from './entities/product.entity';
 import { CategoryEntity } from '../categories/entities/category.entity';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { ResponseMeta } from '../../common/type/response';
-import { CurrentUserType } from '../../security/user.decorator';
+import { ResponseMeta } from '../../../common/type/response';
+import { CurrentUserType } from '../../../security/user.decorator';
 
 @Injectable()
 export class ProductsService {

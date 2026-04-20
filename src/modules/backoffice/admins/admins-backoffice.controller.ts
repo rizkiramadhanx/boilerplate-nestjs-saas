@@ -22,7 +22,7 @@ import { CreateAdminBackofficeDto } from './dto/create-admin-backoffice.dto';
 import { RegisterAdminBackofficeDto } from './dto/register-admin-backoffice.dto';
 import { LoginAdminBackofficeDto } from './dto/login-admin-backoffice.dto';
 import { UpdateAdminBackofficeDto } from './dto/update-admin-backoffice.dto';
-import { AdminAuthGuard } from '../../auth/guards/admin-auth.guard';
+import { AdminAuthGuard } from '../../app/auth/guards/admin-auth.guard';
 
 @Controller('backoffice/admins')
 export class AdminsBackofficeController {

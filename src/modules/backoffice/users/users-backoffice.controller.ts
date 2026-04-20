@@ -17,7 +17,7 @@ import {
   createErrorResponse,
   createSuccessResponse,
 } from '../../../common/type/response';
-import { AdminAuthGuard } from '../../auth/guards/admin-auth.guard';
+import { AdminAuthGuard } from '../../app/auth/guards/admin-auth.guard';
 import { CreateUserBackofficeDto } from './dto/create-user-backoffice.dto';
 import { UpdateUserBackofficeDto } from './dto/update-user-backoffice.dto';
 import { UsersBackofficeService } from './users-backoffice.service';

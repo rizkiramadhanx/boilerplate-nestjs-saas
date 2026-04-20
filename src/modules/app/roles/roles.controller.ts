@@ -17,12 +17,12 @@ import { CreateRoleDto, UpdateRoleDto } from './dto/role.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { CurrentUser, CurrentUserType } from '../../security/user.decorator';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { CurrentUser, CurrentUserType } from '../../../security/user.decorator';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import {
   createSuccessResponse,
   createErrorResponse,
-} from '../../common/type/response';
+} from '../../../common/type/response';
 import ACTION_ROLES from 'src/constant/action-roles';
 import { LogsService } from '../logs/logs.service';
 

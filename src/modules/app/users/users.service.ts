@@ -7,11 +7,11 @@ import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/create-user.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { CreateUserDto } from './dto/base-user.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { ResponseMeta } from '../../common/type/response';
-import { CurrentUserType } from '../../security/user.decorator';
+import { ResponseMeta } from '../../../common/type/response';
+import { CurrentUserType } from '../../../security/user.decorator';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()

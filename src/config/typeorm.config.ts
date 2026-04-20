@@ -1,12 +1,12 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
-import { UserEntity } from '../modules/users/entities/user.entity';
-import { ProductEntity } from '../modules/products/entities/product.entity';
-import { OutletEntity } from '../modules/outlets/entities/outlet.entity';
-import { RoleEntity } from '../modules/roles/entities/role.entity';
-import { CategoryEntity } from '../modules/categories/entities/category.entity';
+import { UserEntity } from '../modules/app/users/entities/user.entity';
+import { ProductEntity } from '../modules/app/products/entities/product.entity';
+import { OutletEntity } from '../modules/app/outlets/entities/outlet.entity';
+import { RoleEntity } from '../modules/app/roles/entities/role.entity';
+import { CategoryEntity } from '../modules/app/categories/entities/category.entity';
 import { AdminEntity } from '../modules/backoffice/admins/entities/admin.entity';
-import { LogEntity } from '../modules/logs/entities/log.entity';
+import { LogEntity } from '../modules/app/logs/entities/log.entity';
 
 config();
 

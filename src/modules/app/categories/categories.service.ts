@@ -8,10 +8,10 @@ import { ILike, Repository } from 'typeorm';
 import { CategoryEntity } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { CurrentUserType } from '../../security/user.decorator';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { CurrentUserType } from '../../../security/user.decorator';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { ResponseMeta } from '../../common/type/response';
+import { ResponseMeta } from '../../../common/type/response';
 
 @Injectable()
 export class CategoriesService {

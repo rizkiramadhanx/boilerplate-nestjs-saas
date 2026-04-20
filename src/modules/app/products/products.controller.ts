@@ -1,69 +1,68 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  HttpStatus,
-  Res,
-  Query,
   Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
   Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UseGuards } from '@nestjs/common';
-import { UserService } from './users.service';
 import { Response } from 'express';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import {
-  createSuccessResponse,
   createErrorResponse,
-} from '../../common/type/response';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
+  createSuccessResponse,
+} from '../../../common/type/response';
+import { CurrentUser, CurrentUserType } from '../../../security/user.decorator';
 import { Permissions } from '../auth/decorators/permissions.decorator';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { CreateUserDto } from './dto/base-user.dto';
-import { UpdateUserDto } from './dto/create-user.dto';
-import { CurrentUser, CurrentUserType } from '../../security/user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { BaseProductDto } from './dto/base-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductsService } from './products.service';
 import { LogsService } from '../logs/logs.service';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
-@Controller('user')
-export class UserController {
+@Controller('product')
+export class ProductsController {
   constructor(
-    private readonly usersService: UserService,
+    private readonly productsService: ProductsService,
     private readonly logsService: LogsService,
   ) {}
 
-  @Permissions('user:read')
+  @Permissions('product:read')
   @Get()
-  async getAllProfile(
+  async getAllProducts(
     @Query() paginationDto: PaginationDto,
     @CurrentUser() currentUser: CurrentUserType,
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const result = await this.usersService.getAllUser(
+      const result = await this.productsService.getAllProducts(
         paginationDto,
         currentUser,
       );
-
       await this.logsService.createLog({
-        action: 'user:read',
+        action: 'product:read',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'SUCCESS',
         statusCode: HttpStatus.OK,
       });
-
       res.status(HttpStatus.OK);
       return createSuccessResponse(
-        'Get All user success',
+        'Get all products success',
         result.data,
         result.meta,
       );
     } catch (err) {
+      console.error('Failed get all products', err);
       await this.logsService.createLog({
-        action: 'user:read',
+        action: 'product:read',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'ERROR',
@@ -71,145 +70,157 @@ export class UserController {
       });
       res.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return createErrorResponse(
-        'Failed to get profile',
+        'Failed to get products',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
-  @Permissions('user:read')
+  @Permissions('product:read')
   @Get(':id')
-  async getUserById(
+  async getProductById(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const user = await this.usersService.getUserById(id, currentUser);
+      const product = await this.productsService.getProductById(
+        id,
+        currentUser,
+      );
       await this.logsService.createLog({
-        action: 'user:read',
+        action: 'product:read',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'SUCCESS',
         statusCode: HttpStatus.OK,
       });
       res.status(HttpStatus.OK);
-      return createSuccessResponse('Get user success', user);
+      return createSuccessResponse('Get product success', product);
     } catch (err) {
-      console.error('Failed get user by id', err);
+      console.error('Failed get product by id', err);
       await this.logsService.createLog({
-        action: 'user:read',
+        action: 'product:read',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'ERROR',
         statusCode: HttpStatus.NOT_FOUND,
       });
       res.status(HttpStatus.NOT_FOUND);
-      return createErrorResponse('User not found', HttpStatus.NOT_FOUND);
+      return createErrorResponse('Product not found', HttpStatus.NOT_FOUND);
     }
   }
 
-  @Permissions('user:create')
+  @Permissions('product:create')
   @Post()
-  async createUser(
-    @Body() createUserDto: CreateUserDto,
+  async createProduct(
+    @Body() createProductDto: BaseProductDto,
     @CurrentUser() currentUser: CurrentUserType,
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const user = await this.usersService.createUser(
-        createUserDto,
+      const product = await this.productsService.createProduct(
+        createProductDto,
         currentUser,
       );
       await this.logsService.createLog({
-        action: 'user:create',
+        action: 'product:create',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'SUCCESS',
         statusCode: HttpStatus.CREATED,
       });
       res.status(HttpStatus.CREATED);
-      return createSuccessResponse('User created successfully', user);
+      return createSuccessResponse('Product created successfully', product);
     } catch (err) {
-      console.error('Failed create user', err);
+      console.error('Failed create product', err);
       await this.logsService.createLog({
-        action: 'user:create',
+        action: 'product:create',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'ERROR',
         statusCode: HttpStatus.CONFLICT,
       });
       res.status(HttpStatus.CONFLICT);
-      return createErrorResponse('Failed to create user', HttpStatus.CONFLICT);
+      return createErrorResponse(
+        'Failed to create product',
+        HttpStatus.CONFLICT,
+      );
     }
   }
 
-  @Permissions('user:update')
-  @Put(':id')
-  async updateUser(
+  @Permissions('product:update')
+  @Patch(':id')
+  async updateProduct(
     @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateProductDto: UpdateProductDto,
     @CurrentUser() currentUser: CurrentUserType,
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const user = await this.usersService.updateUser(
+      const product = await this.productsService.updateProduct(
         id,
-        updateUserDto,
+        updateProductDto,
         currentUser,
       );
       await this.logsService.createLog({
-        action: 'user:update',
+        action: 'product:update',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'SUCCESS',
         statusCode: HttpStatus.OK,
       });
       res.status(HttpStatus.OK);
-      return createSuccessResponse('User updated successfully', user);
+      return createSuccessResponse('Product updated successfully', product);
     } catch (err) {
-      console.error('Failed update user', err);
+      console.error('Failed update product', err);
       await this.logsService.createLog({
-        action: 'user:update',
+        action: 'product:update',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'ERROR',
         statusCode: HttpStatus.NOT_FOUND,
       });
       res.status(HttpStatus.NOT_FOUND);
-      return createErrorResponse('Failed to update user', HttpStatus.NOT_FOUND);
+      return createErrorResponse(
+        'Failed to update product',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
-  @Permissions('user:delete')
+  @Permissions('product:delete')
   @Delete(':id')
-  async deleteUser(
+  async deleteProduct(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const result = await this.usersService.deleteUser(id, currentUser);
+      const result = await this.productsService.deleteProduct(id, currentUser);
       await this.logsService.createLog({
-        action: 'user:delete',
+        action: 'product:delete',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'SUCCESS',
         statusCode: HttpStatus.OK,
       });
       res.status(HttpStatus.OK);
-      return createSuccessResponse('User deleted successfully', result);
+      return createSuccessResponse('Product deleted successfully', result);
     } catch (err) {
-      console.error('Failed delete user', err);
+      console.error('Failed delete product', err);
       await this.logsService.createLog({
-        action: 'user:delete',
+        action: 'product:delete',
         outletId: currentUser.outlet?.id,
         userId: currentUser.id,
         status: 'ERROR',
         statusCode: HttpStatus.NOT_FOUND,
       });
       res.status(HttpStatus.NOT_FOUND);
-      return createErrorResponse('Failed to delete user', HttpStatus.NOT_FOUND);
+      return createErrorResponse(
+        'Failed to delete product',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 }

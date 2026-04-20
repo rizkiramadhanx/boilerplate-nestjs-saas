@@ -14,7 +14,7 @@ import { Request, Response } from 'express';
 import {
   createSuccessResponse,
   createErrorResponse,
-} from '../../common/type/response';
+} from '../../../common/type/response';
 import { LoginDto } from '../users/dto/base-user.dto';
 import { UserEntity } from '../users/entities/user.entity';
 import { AuthService } from './auth.service';

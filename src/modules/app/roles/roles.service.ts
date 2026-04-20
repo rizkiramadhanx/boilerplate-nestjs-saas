@@ -9,9 +9,9 @@ import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { RoleEntity } from './entities/role.entity';
 import { OutletEntity } from '../outlets/entities/outlet.entity';
 import { CreateRoleDto, UpdateRoleDto, RoleResponseDto } from './dto/role.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { ResponseMeta } from '../../common/type/response';
-import { CurrentUserType } from '../../security/user.decorator';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { ResponseMeta } from '../../../common/type/response';
+import { CurrentUserType } from '../../../security/user.decorator';
 
 @Injectable()
 export class RolesService {
