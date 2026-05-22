@@ -1,0 +1,7 @@
+protected_branch='main'
+current_branch=$(git symbolic-ref --short HEAD)
+
+if [ "$current_branch" = "$protected_branch" ]; then
+  echo "→ Pre-push pada branch $current_branch: menjalankan npm run build..."
+  npm run build
+fi

@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Selamat Ulang Tahun!</title>
+  <style type="text/css">
+    body, html { margin: 0; padding: 0; background-color: #f0f4f8; font-family: Arial, sans-serif; }
+    table { border-collapse: collapse; }
+    td { font-family: Arial, sans-serif; }
+    .wrapper { width: 100%; table-layout: fixed; background-color: #f0f4f8; padding: 40px 0; }
+    .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-spacing: 0; border-radius: 12px; overflow: hidden; }
+    .header { background: linear-gradient(135deg, #00529B 0%, #0070cc 100%); padding: 36px 30px 28px; text-align: center; }
+    .header-icon { font-size: 52px; line-height: 1; margin-bottom: 10px; }
+    .brand { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #a8d0f5; margin: 0 0 8px; }
+    .header-title { font-size: 26px; font-weight: bold; color: #ffffff; margin: 0; }
+    .divider { height: 4px; background: linear-gradient(90deg, #f59e0b, #f97316, #ef4444); }
+    .content { padding: 32px 36px 28px; line-height: 1.8; color: #374151; font-size: 15px; }
+    .usia-badge { display: inline-block; background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-size: 13px; font-weight: bold; padding: 4px 14px; border-radius: 20px; margin-bottom: 20px; }
+    .quote-box { border-left: 4px solid #f59e0b; background-color: #fffbeb; padding: 14px 18px; margin: 20px 0; border-radius: 0 8px 8px 0; font-style: italic; color: #92400e; font-size: 14px; line-height: 1.7; }
+    .sign-off { margin-top: 24px; color: #374151; }
+    .sign-off strong { color: #00529B; }
+    .footer { background-color: #f9fafb; border-top: 1px solid #e5e7eb; text-align: center; padding: 18px; font-size: 12px; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <center class="wrapper">
+    <table class="main" width="100%" cellpadding="0" cellspacing="0">
+
+      <tr>
+        <td class="header">
+          <div class="header-icon">🎂</div>
+          <p class="brand">{{appName}}</p>
+          <p class="header-title">Selamat Ulang Tahun!</p>
+        </td>
+      </tr>
+
+      <tr><td class="divider"></td></tr>
+
+      <tr>
+        <td class="content">
+          <p>Halo, <strong>{{nama}}</strong>!</p>
+
+          {{#if usia}}
+          <span class="usia-badge">🎉 Ulang Tahun ke-{{usia}}</span>
+          {{/if}}
+
+          <p>
+            Selamat ulang tahun! Semoga di usia yang baru ini kamu selalu sehat, bahagia,
+            dan dikelilingi hal-hal baik. 🎊
+          </p>
+
+          <div class="quote-box">
+            "Semoga setiap langkah di tahun ini membawa kamu lebih dekat ke versi terbaik dirimu."
+          </div>
+
+          <p class="sign-off">
+            Salam hangat,<br>
+            <strong>Tim {{appName}}</strong>
+          </p>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="footer">
+          <p>&copy; 2026 {{appName}} &nbsp;·&nbsp; All rights reserved.</p>
+        </td>
+      </tr>
+
+    </table>
+  </center>
+</body>
+</html>

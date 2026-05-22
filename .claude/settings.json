@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rtk npm *)",
+      "Bash(sed -n '79,120p' \"/Users/rizkiramadhanx/project lain/agen cerdas/agen-cerdas-service/src/modules/app/pos/pos.service.ts\")",
+      "Bash(sed -n '77,130p' \"/Users/rizkiramadhanx/project lain/agen cerdas/agen-cerdas-service/src/modules/app/transactions/transactions.service.ts\")"
+    ]
+  }
+}

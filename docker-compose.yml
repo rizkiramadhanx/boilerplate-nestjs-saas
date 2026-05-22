@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  agen-cerdas-be:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '${PORT}:${PORT}'
+    env_file:
+      - .env
+    volumes:
+      - ./birthday_list.json:/usr/src/app/birthday_list.json

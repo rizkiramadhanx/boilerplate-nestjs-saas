@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Pembayaran Berhasil - {{appName}}</title>
+  <style type="text/css">
+    body, html { margin: 0; padding: 0; background-color: #f4f6fa; font-family: Arial, sans-serif; }
+    table { border-collapse: collapse; }
+    td { font-family: Arial, sans-serif; }
+    .wrapper { width: 100%; table-layout: fixed; background-color: #f4f6fa; padding-bottom: 40px; }
+    .main { background-color: #ffffff; margin: 0 auto; width: 100%; max-width: 600px; border-spacing: 0; color: #1f2937; }
+    .header { background-color: #00529B; padding: 28px 20px; color: #ffffff; }
+    .brand { font-size: 24px; font-weight: bold; letter-spacing: 0.5px; color: #ffffff; margin: 0; }
+    .tagline { font-size: 13px; color: #e6eefc; margin-top: 4px; }
+    .content { padding: 32px 30px; line-height: 1.6; color: #1f2937; }
+    .success-badge { background-color: #dcfce7; border: 1px solid #86efac; border-radius: 6px; padding: 16px; text-align: center; margin: 20px 0; }
+    .success-badge p { margin: 0; font-size: 18px; font-weight: bold; color: #166534; }
+    .detail-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    .detail-table td { padding: 10px 12px; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
+    .detail-table td:first-child { color: #6b7280; width: 45%; }
+    .detail-table td:last-child { font-weight: 600; color: #1f2937; }
+    .footer { background-color: #f4f6fa; color: #6b7280; text-align: center; padding: 20px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <center class="wrapper">
+    <table class="main" width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td class="header" align="center">
+          <p class="brand">{{appName}}</p>
+          <p class="tagline">Catat transaksi, hitung untung, kelola pembukuan agen kamu</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="content">
+          <p>Halo {{ownerName}},</p>
+          <p>Pembayaran langganan <strong>{{appName}}</strong> kamu berhasil diproses.</p>
+          <div class="success-badge">
+            <p>✓ Pembayaran Berhasil</p>
+          </div>
+          <table class="detail-table">
+            <tr><td>Paket</td><td>{{plan}}</td></tr>
+            <tr><td>Nominal</td><td>{{amount}}</td></tr>
+            <tr><td>Berlaku hingga</td><td>{{periodEnd}}</td></tr>
+            <tr><td>Kuota user</td><td>{{userQuota}} user</td></tr>
+            <tr><td>Kuota cabang</td><td>{{branchQuota}} cabang</td></tr>
+          </table>
+          <p style="font-size: 13px; color: #6b7280;">Terima kasih sudah mempercayai {{appName}}. Akun kamu kini aktif dan siap digunakan.</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="footer">
+          <p>&copy; 2026 {{appName}}. All rights reserved.</p>
+        </td>
+      </tr>
+    </table>
+  </center>
+</body>
+</html>
