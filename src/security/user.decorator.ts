@@ -9,11 +9,9 @@ export type CurrentUserType = {
   role?: { isAdmin?: boolean; modules?: string[] } | null;
 };
 
-export const CurrentUser = createParamDecorator<
-  unknown,
-  ExecutionContext,
-  CurrentUserType
->((_: unknown, ctx: ExecutionContext) => {
-  const req = ctx.switchToHttp().getRequest();
-  return req.user as CurrentUserType;
-});
+export const CurrentUser = createParamDecorator<CurrentUserType>(
+  (_: unknown, ctx: ExecutionContext) => {
+    const req = ctx.switchToHttp().getRequest();
+    return req.user as CurrentUserType;
+  },
+);
